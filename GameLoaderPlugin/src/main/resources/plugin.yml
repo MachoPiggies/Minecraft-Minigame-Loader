@@ -1,0 +1,3 @@
+name: GameLoader
+version: 0.0.1
+main: com.machopiggies.gameloader.Core
