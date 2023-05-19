@@ -1,6 +1,8 @@
 package com.machopiggies.gameloader;
 
+import com.machopiggies.gameloader.commands.CommandManager;
 import com.machopiggies.gameloader.game.ServerGameManager;
+import com.machopiggies.gameloader.gui.GuiManager;
 import com.machopiggies.gameloader.manager.Manager;
 import com.machopiggies.gameloader.world.WorldManager;
 import com.machopiggies.gameloaderapi.excep.InvalidGameException;
@@ -58,10 +60,13 @@ public class Core extends JavaPlugin {
 
     public void makeManagers() {
         managers = Arrays.asList(
+                new GuiManager(),
                 new WorldManager(),
                 gameManager = new ServerGameManager()
         );
         Manager.enableManagers(this, managers);
+
+        CommandManager.activateCmds();
     }
 
     public void killManagers() {
