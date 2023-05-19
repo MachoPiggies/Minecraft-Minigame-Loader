@@ -14,6 +14,13 @@ import java.util.UUID;
  * Controls the management of game loading, publishing, and playing
  */
 public interface GameManager {
+
+    /**
+     * Gets the next game that should be queued
+     * @return the next game
+     */
+    Game getNextGame();
+
     /**
      * Queues the next game from the rotation, or if there is no rotation, picks a new game at random
      */

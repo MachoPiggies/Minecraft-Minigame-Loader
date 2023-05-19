@@ -68,4 +68,8 @@ public class Core extends JavaPlugin {
         Manager.disableManagers(managers);
         gameManager = null;
     }
+
+    public static Core getSelf() {
+        return self;
+    }
 }
