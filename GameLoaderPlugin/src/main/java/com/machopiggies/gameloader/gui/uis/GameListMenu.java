@@ -9,6 +9,7 @@ import com.machopiggies.gameloader.manager.Manager;
 import com.machopiggies.gameloaderapi.game.Game;
 import com.machopiggies.gameloaderapi.game.GameManager;
 import com.machopiggies.gameloaderapi.util.ItemBuilder;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -25,7 +26,7 @@ public abstract class GameListMenu extends MenuInterface {
         super("Games", 45);
         this.player = player;
         this.page = 0;
-        this.gm = Manager.require(ServerGameManager.class, Core.getSelf());
+        this.gm = Core.getGameManager();
 
         for (int i = 0; i < 9; i++) {
             set(i, new MenuInterfaceButton(createSpacer(GuiColor.GRAY)));

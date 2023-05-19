@@ -19,7 +19,7 @@ public class ServerGameSettings implements GameSettings {
         kickInactive = true;
         kitsUnlocked = false;
         doRewards = true;
-        doGameRotation = true;
+        doGameRotation = false;
     }
 
     /**

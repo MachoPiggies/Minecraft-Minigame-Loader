@@ -32,14 +32,14 @@ public class MenuInterface {
 
     public void launch(Player player) {
         player.closeInventory();
-        Manager.require(GuiManager.class, Core.getSelf()).addInventory(player.getUniqueId(), this);
+        Core.getGuiManager().addInventory(player.getUniqueId(), this);
         player.openInventory(inventory);
     }
 
     public void launch(CommandSender sender) {
         if (sender instanceof Player) {
             ((Player) sender).closeInventory();
-            Manager.require(GuiManager.class, Core.getSelf()).addInventory(((Player) sender).getUniqueId(), this);
+            Core.getGuiManager().addInventory(((Player) sender).getUniqueId(), this);
             ((Player) sender).openInventory(inventory);
         }
     }

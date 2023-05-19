@@ -5,9 +5,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.java.JavaPlugin;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -92,19 +90,5 @@ public abstract class Manager implements Listener {
         for (Manager manager : Lists.reverse(managers)) {
             manager.disable();
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T> T require(Class<T> managerClass, Plugin plugin) {
-        return (T) managers.computeIfAbsent((Class<? extends Manager>) managerClass, key -> {
-            try {
-                Manager manager = (Manager) managerClass.getDeclaredConstructor().newInstance();
-                manager.enable(plugin);
-                return manager;
-            } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-                e.printStackTrace();
-            }
-            return null;
-        });
     }
 }

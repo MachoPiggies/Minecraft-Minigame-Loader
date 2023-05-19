@@ -3,6 +3,7 @@ package com.machopiggies.gameloaderapi.game;
 import com.machopiggies.gameloaderapi.excep.InvalidGameException;
 import com.machopiggies.gameloaderapi.player.GameHost;
 import com.machopiggies.gameloaderapi.team.GameTeam;
+import com.machopiggies.gameloaderapi.vote.Vote;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
@@ -179,4 +180,8 @@ public interface GameManager {
      * @return game server settings
      */
     GameSettings getSettings();
+
+    Vote<?> startGameVote();
+
+    Vote<?> getGameVote();
 }

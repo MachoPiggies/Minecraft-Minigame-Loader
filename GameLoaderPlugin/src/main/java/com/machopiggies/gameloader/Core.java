@@ -62,12 +62,14 @@ public class Core extends JavaPlugin {
         getLogger().info("Disabled " + this.getClass().getSimpleName());
     }
 
+    private static GuiManager guiManager;
+    private static WorldManager worldManager;
     private static ServerGameManager gameManager;
 
     public void makeManagers() {
         managers = Arrays.asList(
-                new GuiManager(),
-                new WorldManager(),
+                guiManager = new GuiManager(),
+                worldManager = new WorldManager(),
                 gameManager = new ServerGameManager()
         );
         Manager.enableManagers(this, managers);
@@ -86,5 +88,17 @@ public class Core extends JavaPlugin {
 
     public static Core getSelf() {
         return self;
+    }
+
+    public static GuiManager getGuiManager() {
+        return guiManager;
+    }
+
+    public static ServerGameManager getGameManager() {
+        return gameManager;
+    }
+
+    public static WorldManager getWorldManager() {
+        return worldManager;
     }
 }

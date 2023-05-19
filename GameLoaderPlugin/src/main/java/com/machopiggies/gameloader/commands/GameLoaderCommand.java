@@ -24,7 +24,7 @@ public class GameLoaderCommand extends CommandManager {
     private GameManager gm;
 
     public GameLoaderCommand() {
-        gm = Manager.require(ServerGameManager.class, Core.getSelf());
+        gm = Core.getGameManager();
     }
 
     @Override

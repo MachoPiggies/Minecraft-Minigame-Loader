@@ -1,10 +1,12 @@
 package com.machopiggies.gameloader.game;
 
+import com.machopiggies.gameloader.Core;
 import com.machopiggies.gameloader.game.info.DynamicGameInfo;
 import com.machopiggies.gameloader.game.info.FileBasedGameInfo;
 import com.machopiggies.gameloader.lobby.LobbyManager;
 import com.machopiggies.gameloader.manager.Manager;
 import com.machopiggies.gameloader.player.ServerHostData;
+import com.machopiggies.gameloader.vote.GameVote;
 import com.machopiggies.gameloader.world.WorldManager;
 import com.machopiggies.gameloaderapi.excep.InvalidGameException;
 import com.machopiggies.gameloaderapi.game.*;
@@ -15,14 +17,12 @@ import com.machopiggies.gameloaderapi.scoreboard.MainScoreboard;
 import com.machopiggies.gameloaderapi.scoreboard.LoaderScoreboardLine;
 import com.machopiggies.gameloaderapi.scoreboard.ScoreboardManager;
 import com.machopiggies.gameloaderapi.team.GameTeam;
-import com.machopiggies.gameloaderapi.util.CircularQueue;
-import com.machopiggies.gameloaderapi.util.Message;
-import com.machopiggies.gameloaderapi.vote.VotingManager;
+import com.machopiggies.gameloaderapi.util.*;
+import com.machopiggies.gameloaderapi.vote.Vote;
+import com.machopiggies.gameloaderapi.vote.VoteCallback;
+import com.machopiggies.gameloaderapi.vote.VoteOption;
 import org.apache.commons.lang.Validate;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -46,7 +46,7 @@ public class ServerGameManager extends Manager implements GameManager {
     private GameRunner gameRunner;
     private ScoreboardManager scoreboardManager;
     private LobbyManager lobbyManager;
-    private VotingManager vm;
+    private Vote<Game> gameVote;
 
     private GameReplicator replicator;
     private ServerGameSettings settings;
@@ -57,7 +57,6 @@ public class ServerGameManager extends Manager implements GameManager {
         rotation = new CircularQueue<>();
         replicator = new ServerGameReplicator(this);
         lobbyManager = new LobbyManager();
-//        votingManager = new VotingManager();
         scoreboards = new HashMap<>();
 
         hosts = new HashMap<>();
@@ -106,7 +105,7 @@ public class ServerGameManager extends Manager implements GameManager {
             } catch (IOException ignored) { }
         }
 
-        WorldManager wm = require(WorldManager.class, plugin);
+        WorldManager wm = Core.getWorldManager();
         new Message("Arcade", "Removing all old maps...").console(false);
         wm.deleteLobbyWorlds();
         new Message("Arcade", "Creating game lobby world (" + wm.getLobbyWorldName() + ")...").console(false);
@@ -161,8 +160,15 @@ public class ServerGameManager extends Manager implements GameManager {
 
             @Override
             public void draw(MainScoreboard scoreboard) {
-                if (vm.isVoteInProgress()) {
-//                    scoreboard.setSidebarName(ChatColor.BOLD + "Vote ends in " + Message.BoldGreen + votingManager.getCurrentVote().getTimer());
+                if (gameVote != null && gameVote.isActive()) {
+                    scoreboard.setSidebarName(ChatColor.BOLD + "Vote ends in " + Message.BoldGreen + gameVote.getCountdown());
+                    scoreboard.get(LoaderScoreboardLine.PLAYERS_VALUE).write(gameRunner.getPlayers().size() + (gameRunner.getGame() != null ? "/" + gameRunner.getGame().getInfo().getMaxPlayers() : ""));
+
+                    scoreboard.get(LoaderScoreboardLine.KIT_NAME).write(Message.HEADER + ChatColor.BOLD + "Kit");
+                    scoreboard.get(LoaderScoreboardLine.KIT_VALUE).write("Unknown");
+
+                    scoreboard.get(LoaderScoreboardLine.GAME_NAME).write(Message.HEADER + ChatColor.BOLD + "Game");
+                    scoreboard.get(LoaderScoreboardLine.GAME_VALUE).write("Voting...");
                 } else {
                     if (games.size() == 0) {
                         scoreboard.setSidebarName(ChatColor.BOLD + "No games installed");
@@ -170,7 +176,7 @@ public class ServerGameManager extends Manager implements GameManager {
                         scoreboard.get(LoaderScoreboardLine.KIT_VALUE).write("Unknown");
                         scoreboard.get(LoaderScoreboardLine.GAME_VALUE).write("Unknown");
                     } else if (gameRunner == null) {
-                        scoreboard.setSidebarName(ChatColor.BOLD + "No Gamerunner");
+                        scoreboard.setSidebarName(ChatColor.BOLD + "No game selected");
                         scoreboard.get(LoaderScoreboardLine.PLAYERS_VALUE).write(String.valueOf(Bukkit.getOnlinePlayers().size()));
                         scoreboard.get(LoaderScoreboardLine.KIT_VALUE).write("Unknown");
                         scoreboard.get(LoaderScoreboardLine.GAME_VALUE).write("Unknown");
@@ -254,6 +260,9 @@ public class ServerGameManager extends Manager implements GameManager {
      */
     @Override
     public void queueGame() {
+        if (gameVote != null && gameVote.isActive()) {
+            gameVote.stop();
+        }
         if (gameRunner != null) {
             gameRunner.stop();
             gameRunner = null;
@@ -271,6 +280,9 @@ public class ServerGameManager extends Manager implements GameManager {
      */
     @Override
     public void queueGame(Game game) {
+        if (gameVote != null && gameVote.isActive()) {
+            gameVote.stop();
+        }
         gameRunner = createGameRunner(game);
         gameRunner.run();
     }
@@ -619,6 +631,57 @@ public class ServerGameManager extends Manager implements GameManager {
     @Override
     public GameSettings getSettings() {
         return settings;
+    }
+
+    @Override
+    public Vote<Game> startGameVote() {
+        Vote<Game> vote = new GameVote<>();
+        for (Game game : games.values()) {
+            if (!game.isEnabled()) continue;
+            vote.addItem(new VoteOption<Game>() {
+                @Override
+                public Game getObject() {
+                    return game;
+                }
+
+                @Override
+                public String getName() {
+                    return game.getInfo().getInternalName();
+                }
+
+                @Override
+                public String getDisplayName() {
+                    return game.getInfo().getName();
+                }
+
+                @Override
+                public ItemStack getIcon() {
+                    return new ItemBuilder(game.getInfo().getItem() != null ? game.getInfo().getItem() : new ItemStack(Material.GRASS))
+                            .setDisplayName(getDisplayName())
+                            .setLore(
+                                    "",
+                                    Message.HEADER + "Current Votes: " + Message.DEFAULT + vote.getVotes(game),
+                                    ""
+                            ).addLore(TextUtil.wrap(Message.HEADER + "Click" + Message.DEFAULT + " to add vote!", 36))
+                            .build();
+                }
+            });
+        }
+        vote.setCallback(() -> {
+            Game winner = vote.getWinner();
+            queueGame(winner);
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                new Message("Game", Message.HEADER + winner.getInfo().getName() + Message.DEFAULT + " won the vote!").send(player);
+            }
+            PlayerUtil.playSoundToAll(Sound.LEVEL_UP, 1f, 1f);
+        });
+        vote.run();
+        return gameVote = vote;
+    }
+
+    @Override
+    public Vote<?> getGameVote() {
+        return gameVote;
     }
 
     @EventHandler

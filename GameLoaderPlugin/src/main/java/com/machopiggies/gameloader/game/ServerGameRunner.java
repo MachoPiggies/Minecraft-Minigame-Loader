@@ -1,5 +1,6 @@
 package com.machopiggies.gameloader.game;
 
+import com.machopiggies.gameloader.Core;
 import com.machopiggies.gameloader.manager.Manager;
 import com.machopiggies.gameloaderapi.event.tick.TickEvent;
 import com.machopiggies.gameloaderapi.event.tick.TickType;
@@ -34,7 +35,7 @@ public class ServerGameRunner implements GameRunner, Runnable, Listener {
 
     public ServerGameRunner(Game game, Plugin plugin) {
         Bukkit.getPluginManager().registerEvents(this, plugin);
-        gm = Manager.require(ServerGameManager.class, plugin);
+        gm = Core.getGameManager();
         this.game = game;
         stage = GameStage.LOBBY;
         state = GameState.PRELOAD;
@@ -51,7 +52,9 @@ public class ServerGameRunner implements GameRunner, Runnable, Listener {
     public void run() {
         if (game != null) {
             try {
+                state = GameState.LOADING;
                 game.onLoad();
+                state = GameState.RECRUITING;
             } catch (Exception e) {
                 try {
                     game.onUnload();

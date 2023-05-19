@@ -30,7 +30,7 @@ public class Message {
         this.components = components;
     }
 
-    public static String HEADER = String.valueOf(ChatColor.RED);
+    public static String HEADER = String.valueOf(ChatColor.GOLD);
     public static String DEFAULT = String.valueOf(ChatColor.GRAY);
     public static String ERROR = String.valueOf(ChatColor.RED);
     public static String CATEGORY = String.valueOf(ChatColor.WHITE);
