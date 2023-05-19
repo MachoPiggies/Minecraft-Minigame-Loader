@@ -104,9 +104,7 @@ public class ServerGameManager extends Manager implements GameManager {
                 if (objOut != null) {
                     objOut.close();
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            } catch (IOException ignored) { }
         }
 
         WorldManager wm = require(WorldManager.class, plugin);

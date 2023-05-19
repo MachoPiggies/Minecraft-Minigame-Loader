@@ -3,6 +3,8 @@ package com.machopiggies.gameloader.gui;
 import com.machopiggies.gameloader.Core;
 import com.machopiggies.gameloader.gui.buttons.MenuInterfaceButton;
 import com.machopiggies.gameloader.manager.Manager;
+import com.machopiggies.gameloaderapi.util.ItemBuilder;
+import com.machopiggies.gameloaderapi.util.Message;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -110,5 +112,14 @@ public class MenuInterface {
     public void clear() {
         inventory.clear();
         buttons.clear();
+    }
+
+    protected void update() { }
+
+    protected ItemStack createSpacer(GuiColor color) {
+        return new ItemBuilder(Material.STAINED_GLASS_PANE)
+                .setDurability(color.getGlassColorId())
+                .setDisplayName(Message.HEADER)
+                .build();
     }
 }
