@@ -233,6 +233,19 @@ public class ServerGameManager extends Manager implements GameManager {
     }
 
     /**
+     * Gets the next game that should be queued
+     * @return the next game
+     */
+    @Override
+    public Game getNextGame() {
+       if (rotationEnabled) {
+           return getRotation().isEmpty() ? null : getRotation().poll();
+       } else {
+           return new ArrayList<>(games.values()).get(new Random().nextInt(games.size()));
+       }
+    }
+
+    /**
      * Queues the next game from the rotation, or if there is no rotation, picks a new game at random
      */
     @Override
@@ -241,7 +254,7 @@ public class ServerGameManager extends Manager implements GameManager {
             gameRunner.stop();
             gameRunner = null;
         }
-        Game game = getRotation().isEmpty() ? null : getRotation().poll();
+        Game game = getNextGame();
         if (game == null) return;
         gameRunner = createGameRunner(game);
         gameRunner.run();
