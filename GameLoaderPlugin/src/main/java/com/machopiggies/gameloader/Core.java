@@ -4,6 +4,7 @@ import com.machopiggies.gameloader.commands.CommandManager;
 import com.machopiggies.gameloader.game.ServerGameManager;
 import com.machopiggies.gameloader.gui.GuiManager;
 import com.machopiggies.gameloader.manager.Manager;
+import com.machopiggies.gameloader.util.Ticker;
 import com.machopiggies.gameloader.world.WorldManager;
 import com.machopiggies.gameloaderapi.excep.InvalidGameException;
 import com.machopiggies.gameloaderapi.game.GameManager;
@@ -18,6 +19,7 @@ public class Core extends JavaPlugin {
 
     static Core self;
     List<Manager> managers;
+    Ticker ticker;
 
     @Override
     public void onEnable() {
@@ -36,6 +38,8 @@ public class Core extends JavaPlugin {
             e.printStackTrace();
         }
 
+        ticker = new Ticker();
+
 //        Core.getCommandManager().registerCommand(this, GameCommand.class);
 //        Core.getCommandManager().registerCommand(this, GameWhitelistCommand.class);
 //        Core.getCommandManager().registerCommand(this, GameBlacklistCommand.class);
@@ -48,6 +52,8 @@ public class Core extends JavaPlugin {
     @Override
     public void onDisable() {
         getLogger().info("Disabling " + this.getClass().getSimpleName());
+
+        ticker.shutdown();
 
         killManagers();
 

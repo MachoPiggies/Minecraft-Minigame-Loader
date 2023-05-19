@@ -1,6 +1,5 @@
 package com.machopiggies.gameloader.game;
 
-import com.google.gson.Gson;
 import com.machopiggies.gameloader.game.info.DynamicGameInfo;
 import com.machopiggies.gameloader.game.info.FileBasedGameInfo;
 import com.machopiggies.gameloader.lobby.LobbyManager;
@@ -12,13 +11,13 @@ import com.machopiggies.gameloaderapi.game.*;
 import com.machopiggies.gameloaderapi.kit.GameKit;
 import com.machopiggies.gameloaderapi.load.GameClassLoader;
 import com.machopiggies.gameloaderapi.player.GameHost;
-import com.machopiggies.gameloaderapi.scoreboard.GameScoreboard;
 import com.machopiggies.gameloaderapi.scoreboard.MainScoreboard;
 import com.machopiggies.gameloaderapi.scoreboard.LoaderScoreboardLine;
 import com.machopiggies.gameloaderapi.scoreboard.ScoreboardManager;
 import com.machopiggies.gameloaderapi.team.GameTeam;
 import com.machopiggies.gameloaderapi.util.CircularQueue;
 import com.machopiggies.gameloaderapi.util.Message;
+import com.machopiggies.gameloaderapi.vote.VotingManager;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -47,7 +46,7 @@ public class ServerGameManager extends Manager implements GameManager {
     private GameRunner gameRunner;
     private ScoreboardManager scoreboardManager;
     private LobbyManager lobbyManager;
-//    VotingManager votingManager;
+    private VotingManager vm;
 
     private GameReplicator replicator;
     private ServerGameSettings settings;
@@ -150,25 +149,31 @@ public class ServerGameManager extends Manager implements GameManager {
                         .register(LoaderScoreboardLine.KIT_SPACER)
                         .register(LoaderScoreboardLine.KIT_NAME)
                         .register(LoaderScoreboardLine.KIT_VALUE)
+                        .register(LoaderScoreboardLine.GAME_SPACER)
+                        .register(LoaderScoreboardLine.GAME_NAME)
+                        .register(LoaderScoreboardLine.GAME_VALUE)
                         .recalculate();
 
                 scoreboard.get(LoaderScoreboardLine.PLAYERS_NAME).write(Message.HEADER + ChatColor.BOLD + "Players");
                 scoreboard.get(LoaderScoreboardLine.KIT_NAME).write(Message.HEADER + ChatColor.BOLD + "Kit");
+                scoreboard.get(LoaderScoreboardLine.GAME_NAME).write(Message.HEADER + ChatColor.BOLD + "Game");
             }
 
             @Override
             public void draw(MainScoreboard scoreboard) {
-                if (false) {//votingManager.isVoteInProgress()) {
+                if (vm.isVoteInProgress()) {
 //                    scoreboard.setSidebarName(ChatColor.BOLD + "Vote ends in " + Message.BoldGreen + votingManager.getCurrentVote().getTimer());
                 } else {
-                    if (gameRunner == null && games.size() > 0) {
-                        scoreboard.setSidebarName(ChatColor.BOLD + "Error: No Gamerunner");
-                        scoreboard.get(LoaderScoreboardLine.PLAYERS_VALUE).write(String.valueOf(Bukkit.getOnlinePlayers().size()));
-                        scoreboard.get(LoaderScoreboardLine.KIT_VALUE).write("Unknown");
-                    } else if (gameRunner == null) {
+                    if (games.size() == 0) {
                         scoreboard.setSidebarName(ChatColor.BOLD + "No games installed");
                         scoreboard.get(LoaderScoreboardLine.PLAYERS_VALUE).write(String.valueOf(Bukkit.getOnlinePlayers().size()));
                         scoreboard.get(LoaderScoreboardLine.KIT_VALUE).write("Unknown");
+                        scoreboard.get(LoaderScoreboardLine.GAME_VALUE).write("Unknown");
+                    } else if (gameRunner == null) {
+                        scoreboard.setSidebarName(ChatColor.BOLD + "No Gamerunner");
+                        scoreboard.get(LoaderScoreboardLine.PLAYERS_VALUE).write(String.valueOf(Bukkit.getOnlinePlayers().size()));
+                        scoreboard.get(LoaderScoreboardLine.KIT_VALUE).write("Unknown");
+                        scoreboard.get(LoaderScoreboardLine.GAME_VALUE).write("Unknown");
                     } else {
                         int countdown = gameRunner.getCountdown();
                         GameState state = gameRunner.getState();
@@ -194,7 +199,7 @@ public class ServerGameManager extends Manager implements GameManager {
                             GameTeam team = gameRunner.getTeam(scoreboard.getOwner());
 
                             if (kit != null) {
-                                kitName = kit.getName();
+                                kitName = kit.getDisplayName();
                             }
 
                             if (team != null) {
@@ -204,6 +209,9 @@ public class ServerGameManager extends Manager implements GameManager {
 
                         scoreboard.get(LoaderScoreboardLine.KIT_NAME).write(teamColor + Message.HEADER + ChatColor.BOLD + "Kit");
                         scoreboard.get(LoaderScoreboardLine.KIT_VALUE).write(kitName);
+
+                        scoreboard.get(LoaderScoreboardLine.GAME_NAME).write(teamColor + Message.HEADER + ChatColor.BOLD + "Game");
+                        scoreboard.get(LoaderScoreboardLine.GAME_VALUE).write(gameRunner.getGame().getInfo().getName());
                     }
                 }
             }
@@ -631,5 +639,9 @@ public class ServerGameManager extends Manager implements GameManager {
         if (data != null && data.getAddedBy() == null) {
             cohosts.remove(event.getPlayer().getUniqueId());
         }
+    }
+
+    public ScoreboardManager getScoreboardManager() {
+        return scoreboardManager;
     }
 }
