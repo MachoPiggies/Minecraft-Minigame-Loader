@@ -74,6 +74,10 @@ public class Core extends JavaPlugin {
         gameManager = null;
     }
 
+    public ClassLoader getPluginClassLoader() {
+        return super.getClassLoader();
+    }
+
     public static Core getSelf() {
         return self;
     }
