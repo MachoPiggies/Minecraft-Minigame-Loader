@@ -37,6 +37,20 @@ public abstract class GameListMenu extends MenuInterface {
     }
 
     @Override
+    public void setPreviousGui(MenuInterface previousGui) {
+        if (previousGui != null) {
+            set(0, new MenuInterfaceButton(new ItemBuilder(Material.ARROW)
+                    .setDisplayName(ChatColor.GOLD + "Back")
+                    .build(), (m,e) -> previousGui.launch(player)));
+        }
+    }
+
+    @Override
+    public void launch() {
+        launch(player);
+    }
+
+    @Override
     public void update() {
         double exactMaxPage = (double) gm.getGames().values().size() / 27;
         int maxPage;

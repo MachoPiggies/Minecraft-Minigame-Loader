@@ -60,6 +60,20 @@ public class GameSettingsPanelMenu extends MenuInterface {
         }));
     }
 
+    @Override
+    public void setPreviousGui(MenuInterface previousGui) {
+        if (previousGui != null) {
+            set(0, new MenuInterfaceButton(new ItemBuilder(Material.ARROW)
+                    .setDisplayName(ChatColor.GOLD + "Back")
+                    .build(), (m,e) -> previousGui.launch(player)));
+        }
+    }
+
+    @Override
+    public void launch() {
+        launch(player);
+    }
+
     private void createConfigOption(int slot, String label, Material material, Function<GameSettings, Boolean> getter, Consumer<GameSettings> setter) {
         createConfigOption(slot, label, new ItemStack(material), getter, setter);
     }

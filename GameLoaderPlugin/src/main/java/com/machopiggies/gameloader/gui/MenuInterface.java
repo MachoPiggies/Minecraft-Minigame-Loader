@@ -30,6 +30,14 @@ public class MenuInterface {
         buttons = new HashMap<>();
     }
 
+    public void setPreviousGui(MenuInterface previousGui) {
+        throw new UnsupportedOperationException("cannot support this method yet");
+    }
+
+    public void launch() {
+        throw new UnsupportedOperationException("cannot support this method yet");
+    }
+
     public void launch(Player player) {
         player.closeInventory();
         Core.getGuiManager().addInventory(player.getUniqueId(), this);

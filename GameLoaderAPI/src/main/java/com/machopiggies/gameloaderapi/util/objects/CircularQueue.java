@@ -1,4 +1,4 @@
-package com.machopiggies.gameloaderapi.util;
+package com.machopiggies.gameloaderapi.util.objects;
 
 import java.util.ArrayDeque;
 import java.util.Collection;

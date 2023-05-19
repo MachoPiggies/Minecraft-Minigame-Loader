@@ -1,22 +1,16 @@
 package com.machopiggies.gameloader.world;
 
 import com.machopiggies.gameloader.manager.Manager;
-import com.machopiggies.gameloaderapi.util.CircularQueue;
 import com.machopiggies.gameloaderapi.util.FileUtil;
 import com.machopiggies.gameloaderapi.util.Message;
 import com.machopiggies.gameloaderapi.util.TextUtil;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.*;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
-import java.util.Arrays;
-import java.util.Properties;
-import java.util.stream.Collectors;
 
 public class WorldManager extends Manager {
 
