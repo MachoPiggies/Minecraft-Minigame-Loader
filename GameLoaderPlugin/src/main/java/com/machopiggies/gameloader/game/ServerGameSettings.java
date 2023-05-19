@@ -10,6 +10,7 @@ public class ServerGameSettings implements GameSettings {
     boolean kickInactive;
     boolean kitsUnlocked;
     boolean doRewards;
+    boolean doGameRotation;
 
     public ServerGameSettings() {
         teamBalancing = true;
@@ -18,6 +19,7 @@ public class ServerGameSettings implements GameSettings {
         kickInactive = true;
         kitsUnlocked = false;
         doRewards = true;
+        doGameRotation = true;
     }
 
     /**
@@ -138,5 +140,25 @@ public class ServerGameSettings implements GameSettings {
     @Override
     public void setDoRewards(boolean giveRewards) {
         this.doRewards = giveRewards;
+    }
+
+    /**
+     * Checks if the game should be looking for new games when a game ends
+     *
+     * @return if the game should be rotating
+     */
+    @Override
+    public boolean doGameRotation() {
+        return doGameRotation;
+    }
+
+    /**
+     * Sets if the game should be rotating on game end
+     *
+     * @param doGameRotation if game rotation is on or not
+     */
+    @Override
+    public void setGameRotation(boolean doGameRotation) {
+        this.doGameRotation = doGameRotation;
     }
 }

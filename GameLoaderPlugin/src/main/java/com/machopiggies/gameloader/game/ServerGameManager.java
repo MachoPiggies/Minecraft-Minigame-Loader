@@ -1,5 +1,6 @@
 package com.machopiggies.gameloader.game;
 
+import com.google.gson.Gson;
 import com.machopiggies.gameloader.game.info.DynamicGameInfo;
 import com.machopiggies.gameloader.game.info.FileBasedGameInfo;
 import com.machopiggies.gameloader.lobby.LobbyManager;
@@ -43,8 +44,6 @@ public class ServerGameManager extends Manager implements GameManager {
     private Map<UUID, GameHost> hosts; // UUID, host by permission
     private Map<UUID, GameHost> cohosts; //
 
-    private boolean rotationEnabled;
-
     private GameRunner gameRunner;
     private ScoreboardManager scoreboardManager;
     private LobbyManager lobbyManager;
@@ -79,13 +78,12 @@ public class ServerGameManager extends Manager implements GameManager {
                 in = new FileInputStream(file);
                 objIn = new ObjectInputStream(in);
                 rotation.addAll(Arrays.asList((String[]) objIn.readObject()));
-                rotationEnabled = objIn.readBoolean();
             } else {
                 out = new FileOutputStream(file);
                 objOut = new ObjectOutputStream(out);
                 objOut.writeObject(new String[0]);
+                objOut.writeByte(1);
                 rotation = new CircularQueue<>(games.values().stream().map(game -> game.getInfo().getInternalName()).collect(Collectors.toList()));
-                rotationEnabled = true;
             }
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
@@ -238,7 +236,7 @@ public class ServerGameManager extends Manager implements GameManager {
      */
     @Override
     public Game getNextGame() {
-       if (rotationEnabled) {
+       if (settings.doGameRotation()) {
            return getRotation().isEmpty() ? null : getRotation().poll();
        } else {
            return new ArrayList<>(games.values()).get(new Random().nextInt(games.size()));
@@ -396,7 +394,6 @@ public class ServerGameManager extends Manager implements GameManager {
             out = new FileOutputStream(file);
             objOut = new ObjectOutputStream(out);
             objOut.writeObject(rotation.toArray(new String[0]));
-            objOut.writeBoolean(rotationEnabled);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -454,7 +451,7 @@ public class ServerGameManager extends Manager implements GameManager {
      */
     @Override
     public boolean isRotationEnabled() {
-        return rotationEnabled;
+        return settings.doGameRotation();
     }
 
     /**
@@ -464,7 +461,7 @@ public class ServerGameManager extends Manager implements GameManager {
      */
     @Override
     public void setRotationEnabled(boolean rotationEnabled) {
-        this.rotationEnabled = rotationEnabled;
+        this.settings.setGameRotation(rotationEnabled);
     }
 
     /**

@@ -75,4 +75,18 @@ public interface GameSettings {
      * @param giveRewards if the game should be giving rewards or not
      */
     void setDoRewards(boolean giveRewards);
+
+    /**
+     * Checks if the game should be looking for new games when a game ends
+     *
+     * @return if the game should be rotating
+     */
+    boolean doGameRotation();
+
+    /**
+     * Sets if the game should be rotating on game end
+     *
+     * @param doGameRotation if game rotation is on or not
+     */
+    void setGameRotation(boolean doGameRotation);
 }
