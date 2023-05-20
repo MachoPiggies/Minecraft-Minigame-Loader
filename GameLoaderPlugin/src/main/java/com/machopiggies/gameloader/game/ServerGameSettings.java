@@ -1,6 +1,12 @@
 package com.machopiggies.gameloader.game;
 
+import com.machopiggies.gameloader.Core;
 import com.machopiggies.gameloaderapi.game.GameSettings;
+import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.YamlConfiguration;
+
+import java.io.File;
+import java.io.IOException;
 
 public class ServerGameSettings implements GameSettings {
 
@@ -13,13 +19,29 @@ public class ServerGameSettings implements GameSettings {
     boolean doGameRotation;
 
     public ServerGameSettings() {
-        teamBalancing = true;
-        autoStart = true;
-        gameTimeout = true;
-        kickInactive = true;
-        kitsUnlocked = false;
-        doRewards = true;
-        doGameRotation = false;
+        try {
+            File file = new File(Core.getSelf().getDataFolder(), "settings.yml");
+            if (!file.exists()) {
+                if (!file.createNewFile()) {
+                    Bukkit.getLogger().warning("Could not create settings.yml");
+                }
+            }
+
+            YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
+
+            teamBalancing = config.getBoolean("teamBalancing", true);
+            autoStart = config.getBoolean("autoStart", true);
+            gameTimeout = config.getBoolean("gameTimeout", true);
+            kickInactive = config.getBoolean("kickInactive", true);
+            kitsUnlocked = config.getBoolean("kitsUnlocked", false);
+            doRewards = config.getBoolean("doRewards", true);
+            doGameRotation = config.getBoolean("doGameRotation", false);
+
+            config.save(file);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -160,5 +182,32 @@ public class ServerGameSettings implements GameSettings {
     @Override
     public void setGameRotation(boolean doGameRotation) {
         this.doGameRotation = doGameRotation;
+    }
+
+    @Override
+    public synchronized void saveSettings() {
+        try {
+            File file = new File(Core.getSelf().getDataFolder(), "settings.yml");
+            if (!file.exists()) {
+                if (!file.createNewFile()) {
+                    Bukkit.getLogger().warning("Could not create settings.yml");
+                }
+            }
+
+            YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
+
+            config.set("teamBalancing", teamBalancing);
+            config.set("autoStart", autoStart);
+            config.set("gameTimeout", gameTimeout);
+            config.set("kickInactive", kickInactive);
+            config.set("kitsUnlocked", kitsUnlocked);
+            config.set("doRewards", doRewards);
+            config.set("doGameRotation", doGameRotation);
+
+            config.save(file);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

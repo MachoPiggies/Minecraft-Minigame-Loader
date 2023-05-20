@@ -89,4 +89,6 @@ public interface GameSettings {
      * @param doGameRotation if game rotation is on or not
      */
     void setGameRotation(boolean doGameRotation);
+
+    void saveSettings();
 }
