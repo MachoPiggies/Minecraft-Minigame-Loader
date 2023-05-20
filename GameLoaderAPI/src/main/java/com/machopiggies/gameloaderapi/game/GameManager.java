@@ -181,7 +181,7 @@ public interface GameManager {
      */
     GameSettings getSettings();
 
-    Vote<?> startGameVote();
+    Vote<Game> startGameVote();
 
-    Vote<?> getGameVote();
+    Vote<Game> getGameVote();
 }

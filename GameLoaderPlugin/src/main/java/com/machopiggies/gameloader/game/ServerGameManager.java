@@ -680,7 +680,7 @@ public class ServerGameManager extends Manager implements GameManager {
     }
 
     @Override
-    public Vote<?> getGameVote() {
+    public Vote<Game> getGameVote() {
         return gameVote;
     }
 
