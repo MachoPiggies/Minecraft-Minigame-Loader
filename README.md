@@ -6,6 +6,17 @@ Hey there, you've found one of the projects I've been doing for fun! Not much to
 If I ever end up completing this project, I'll put a Maven import tutorial here so you can clone this repo for yourself, use the api and maybe get a head start on making your own minigames to show off!
 ***
 
+Disclaimer
+-----------
+This mini project is for reference only, this project has **not been developed to be put to use in a production environment**.
+
+Proper, well-made Game Loaders are custom-made for servers, by developers who have catered the resources, style, paradigm, configuration and features all to their specific server and loader. This game loader has been created independently, and cannot interact with outside elements without that functionality being deliberately added through modification of the plugin. Some correct uses of this projects source are:
+ * Taking code for your own projects
+ * Loading on development servers to make small mini-games for your friends OR show off to potential employers
+ * Learning from the way code here is set out and how you can improve your own
+
+**I will not provide any support for 'incorrect' uses of this projects code**
+
 Pre-requisites
 -----------
 1. [Maven](https://maven.apache.org/download.cgi?.) (Maven 3)
