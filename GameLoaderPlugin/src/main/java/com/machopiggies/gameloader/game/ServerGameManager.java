@@ -325,12 +325,8 @@ public class ServerGameManager extends Manager implements GameManager {
         }
         File mapsFolder = new File(gameDataFolder, "maps");
         if (!mapsFolder.exists()) {
-            try {
-                if (!mapsFolder.createNewFile()) {
-                    Bukkit.getLogger().info("Attempt at creating map folder failed!");
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+            if (!mapsFolder.mkdirs()) {
+                Bukkit.getLogger().info("Attempt at creating map folder failed!");
             }
         }
         File configFile = new File(gameDataFolder, "config.yml");
