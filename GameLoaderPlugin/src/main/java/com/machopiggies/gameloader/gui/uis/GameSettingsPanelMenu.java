@@ -56,6 +56,7 @@ public class GameSettingsPanelMenu extends MenuInterface {
                 .setDisplayName((defValue ? ChatColor.GREEN + String.valueOf(ChatColor.BOLD) + "Enabled" : ChatColor.RED + String.valueOf(ChatColor.BOLD) + "Disabled"))
                 .build(), (g,e) -> {
             setter.accept(gm.getSettings());
+            gm.getSettings().saveSettings();
             update();
         }));
     }
