@@ -39,11 +39,13 @@ public class GameSettingsPanelMenu extends MenuInterface {
 
         createConfigOption(15, "Use Team Balancing", Material.RAILS, GameSettings::useTeamBalancing, x -> x.setTeamBalancing(!x.useTeamBalancing()));
 
-        createConfigOption(38, "Auto Start", Material.EMERALD_BLOCK, GameSettings::isAutoStart, x -> x.setAutoStart(!x.isAutoStart()));
+        createConfigOption(37, "Auto Start", Material.EMERALD_BLOCK, GameSettings::isAutoStart, x -> x.setAutoStart(!x.isAutoStart()));
 
-        createConfigOption(40, "Game Timeout", Material.COMPASS, GameSettings::doGameTimeout, x -> x.setGameTimeout(!x.doGameTimeout()));
+        createConfigOption(39, "Game Timeout", Material.COMPASS, GameSettings::doGameTimeout, x -> x.setGameTimeout(!x.doGameTimeout()));
 
-        createConfigOption(42, "Kick Inactive", Material.WATCH, GameSettings::doKickInactive, x -> x.setKickInactive(!x.doKickInactive()));
+        createConfigOption(41, "Kick Inactive", Material.WATCH, GameSettings::doKickInactive, x -> x.setKickInactive(!x.doKickInactive()));
+
+        createConfigOption(43, "Game Rotation", Material.REDSTONE_ORE, GameSettings::doGameRotation, x -> x.setGameRotation(!x.doGameRotation()));
     }
 
     private void createConfigOption(int slot, String label, ItemStack stack, Function<GameSettings, Boolean> getter, Consumer<GameSettings> setter) {

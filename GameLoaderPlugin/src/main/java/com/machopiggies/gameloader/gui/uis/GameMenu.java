@@ -250,50 +250,44 @@ public class GameMenu extends MenuInterface {
             menu.launch(player);
         }));
 
-        if (!gm.getSettings().isAutoStart() && !gm.getSettings().doGameRotation()) {
-            if (gm.getGameVote() != null && gm.getGameVote().isActive()) {
-                set(21, new MenuInterfaceButton(new ItemBuilder(Material.BOOK_AND_QUILL)
-                        .setDisplayName(Message.HEADER + ChatColor.BOLD + "Game Voting")
-                        .addGlow()
-                        .build(), (g, e) -> {
-                    gm.getGameVote().stop();
-                    new Message("Game", Message.HEADER + player.getName() + Message.DEFAULT + " has stopped the game vote!").send(player);
-                    PlayerUtil.playSoundToAll(Sound.NOTE_PLING, 1f, 1f);
-                    update();
-                }));
-            } else {
-                set(21, new MenuInterfaceButton(new ItemBuilder(Material.BOOK_AND_QUILL)
-                        .setDisplayName(Message.HEADER + ChatColor.BOLD + "Game Voting")
-                        .build(), (g, e) -> {
-                    if (gm.getSettings().isAutoStart()) return;
-                    if (gm.getSettings().doGameRotation()) return;
-                    gm.startGameVote();
-                    new Message("Game", Message.HEADER + player.getName() + Message.DEFAULT + " has started a game vote!").send(player);
-
-                    TextComponent command = new TextComponent("Click to vote!");
-                    command.setColor(ChatColor.LIGHT_PURPLE.asBungee());
-                    command.setBold(true);
-                    command.setUnderlined(true);
-
-                    TextComponent hoverMessage = new TextComponent("Click to open vote gui!");
-                    hoverMessage.setColor(ChatColor.GOLD.asBungee());
-
-                    command.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[]{hoverMessage}));
-                    command.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/gameloader gamevote"));
-                    for (Player p : Bukkit.getOnlinePlayers()) {
-                        new Message(command).sendSpecial(p);
-                    }
-
-                    PlayerUtil.playSoundToAll(Sound.LEVEL_UP, 1f, 1f);
-                    update();
-                }));
-            }
+        if (gm.getGameVote() != null && gm.getGameVote().isActive()) {
+            set(21, new MenuInterfaceButton(new ItemBuilder(Material.BOOK_AND_QUILL)
+                    .setDisplayName(Message.HEADER + ChatColor.BOLD + "Game Voting")
+                    .addGlow()
+                    .build(), (g, e) -> {
+                gm.getGameVote().stop();
+                new Message("Game", Message.HEADER + player.getName() + Message.DEFAULT + " has stopped the game vote!").send(player);
+                PlayerUtil.playSoundToAll(Sound.NOTE_PLING, 1f, 1f);
+                update();
+            }));
         } else {
             set(21, new MenuInterfaceButton(new ItemBuilder(Material.BOOK_AND_QUILL)
-                    .setDisplayName(ChatColor.RED + String.valueOf(ChatColor.BOLD) + "Game Voting")
-                    .setLore("")
-                    .addLore(TextUtil.wrap(ChatColor.RED + "Game votes can only be started when auto-start and game rotation are both turned off!", 36))
-                    .build()));
+                    .setDisplayName(Message.HEADER + ChatColor.BOLD + "Game Voting")
+                    .build(), (g, e) -> {
+                if (gm.getGameRunner() == null) return;
+                if (gm.getGameRunner().getState().isStarted()) return;
+                gm.getGameRunner().stopCountdown();
+
+                gm.startGameVote();
+                new Message("Game", Message.HEADER + player.getName() + Message.DEFAULT + " has started a game vote!").send(player);
+
+                TextComponent command = new TextComponent("Click to vote!");
+                command.setColor(ChatColor.LIGHT_PURPLE.asBungee());
+                command.setBold(true);
+                command.setUnderlined(true);
+
+                TextComponent hoverMessage = new TextComponent("Click to open vote gui!");
+                hoverMessage.setColor(ChatColor.GOLD.asBungee());
+
+                command.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[]{hoverMessage}));
+                command.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/gameloader gamevote"));
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    new Message(command).sendSpecial(p);
+                }
+
+                PlayerUtil.playSoundToAll(Sound.LEVEL_UP, 1f, 1f);
+                update();
+            }));
         }
 
         set(23, new MenuInterfaceButton(new ItemBuilder(Material.BOOK_AND_QUILL)

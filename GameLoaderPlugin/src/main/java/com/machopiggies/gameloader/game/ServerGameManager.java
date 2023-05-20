@@ -248,8 +248,8 @@ public class ServerGameManager extends Manager implements GameManager {
      */
     @Override
     public Game getNextGame() {
-       if (settings.doGameRotation()) {
-           return getRotation().isEmpty() ? null : getRotation().poll();
+       if (settings.doGameRotation() && !getRotation().isEmpty()) {
+           return getRotation().poll();
        } else {
            return new ArrayList<>(games.values()).get(new Random().nextInt(games.size()));
        }
