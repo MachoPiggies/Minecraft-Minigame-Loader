@@ -83,7 +83,7 @@ public interface GameRunner extends Runnable {
 
     boolean isMapChosen();
 
-    Properties getMapData();
+    String getMapName();
 
     /**
      * Gets the scoreboard manager for this game instance

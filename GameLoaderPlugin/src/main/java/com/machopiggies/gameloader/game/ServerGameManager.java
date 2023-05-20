@@ -175,7 +175,7 @@ public class ServerGameManager extends Manager implements GameManager {
                     scoreboard.get(LoaderScoreboardLine.GAME_NAME).write(Message.HEADER + ChatColor.BOLD + "Vote");
                     scoreboard.get(LoaderScoreboardLine.GAME_VALUE).write(vote != null ? vote.getDisplayName() : "None");
                     scoreboard.get(LoaderScoreboardLine.MAP_NAME).write(Message.HEADER + ChatColor.BOLD + "Map");
-                    scoreboard.get(LoaderScoreboardLine.MAP_VALUE).write(gameRunner.isMapChosen() ? gameRunner.getMapData().getProperty("displayName") : "None");
+                    scoreboard.get(LoaderScoreboardLine.MAP_VALUE).write(gameRunner.isMapChosen() ? gameRunner.getMapName() : "None");
                 } else {
                     if (games.size() == 0) {
                         scoreboard.setSidebarName(ChatColor.RED + String.valueOf(ChatColor.BOLD) + "No games installed");
@@ -235,7 +235,7 @@ public class ServerGameManager extends Manager implements GameManager {
                         scoreboard.get(LoaderScoreboardLine.GAME_VALUE).write(gameRunner.getGame().getInfo().getName());
 
                         scoreboard.get(LoaderScoreboardLine.MAP_NAME).write(Message.HEADER + ChatColor.BOLD + "Map");
-                        scoreboard.get(LoaderScoreboardLine.MAP_VALUE).write(gameRunner.isMapChosen() ? gameRunner.getMapData().getProperty("displayName") : "None");
+                        scoreboard.get(LoaderScoreboardLine.MAP_VALUE).write(gameRunner.isMapChosen() ? gameRunner.getMapName() : "None");
                     }
                 }
             }

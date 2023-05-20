@@ -111,6 +111,8 @@ public class ServerGameRunner implements GameRunner, Runnable, Listener {
     @Override
     public void selectMap() {
         File[] maps = game.getInfo().getMapDirectory().listFiles();
+        Bukkit.getLogger().info(Arrays.toString(maps));
+        Bukkit.getLogger().info(game.getInfo().getMapDirectory().getPath());
         if (maps == null || maps.length == 0) {
             mapFile = null;
             return;
@@ -169,8 +171,8 @@ public class ServerGameRunner implements GameRunner, Runnable, Listener {
     }
 
     @Override
-    public Properties getMapData() {
-        return null;
+    public String getMapName() {
+        return mapFile.getName();
     }
 
     public boolean isAlive(Player player) {

@@ -93,11 +93,19 @@ public class WorldManager extends Manager {
         ServerGameMap map = new ServerGameMap(world);
 
         File yamlFile;
+        YamlConfiguration config = null;
         try {
             yamlFile = new File(worldFile, "map.yml");
             if (!yamlFile.exists()) {
                 if (yamlFile.createNewFile()) {
                     Bukkit.getLogger().warning("Could not find a map.yml in " + worldFile.getPath() + ", creating...");
+                    config = YamlConfiguration.loadConfiguration(yamlFile);
+
+                    config.set("locations.spawn.neutral.default.x", 0.5);
+                    config.set("locations.spawn.neutral.default.y", 64);
+                    config.set("locations.spawn.neutral.default.z", 0.5);
+
+                    config.save(yamlFile);
                 } else {
                     Bukkit.getLogger().severe("Could not find a map.yml in " + worldFile.getPath() + ", creation of file failed!");
                     return map;
@@ -110,24 +118,29 @@ public class WorldManager extends Manager {
         }
 
         try {
-            YamlConfiguration config = YamlConfiguration.loadConfiguration(yamlFile);
+            config = config != null ? config : YamlConfiguration.loadConfiguration(yamlFile);
 
             double x = 0,y = 0,z = 0;
-            for (String type : config.getConfigurationSection("locations").getKeys(false)) {
-                Properties properties = new Properties();
-                properties.setProperty("type", type);
-                for (String teamName : config.getConfigurationSection("locations." + type).getKeys(false)) {
-                    properties.setProperty("team", teamName);
-                    for (String point : config.getConfigurationSection("locations." + type + "." + teamName).getKeys(false)) {
-                        properties.setProperty("point", point);
-                        x = config.getDouble("locations." + type + "." + teamName + "." + point + ".x", 0);
-                        y = config.getDouble("locations." + type + "." + teamName + "." + point + ".y", 0);
-                        z = config.getDouble("locations." + type + "." + teamName + "." + point + ".z", 0);
+            if (config.isConfigurationSection("locations")) {
+                for (String type : config.getConfigurationSection("locations").getKeys(false)) {
+                    Properties properties = new Properties();
+                    properties.setProperty("type", type);
+
+                    if (!config.isConfigurationSection("locations." + type)) continue;
+                    for (String teamName : config.getConfigurationSection("locations." + type).getKeys(false)) {
+                        properties.setProperty("team", teamName);
+
+                        if (!config.isConfigurationSection("locations." + type + "." + teamName)) continue;
+                        for (String point : config.getConfigurationSection("locations." + type + "." + teamName).getKeys(false)) {
+                            properties.setProperty("point", point);
+                            x = config.getDouble("locations." + type + "." + teamName + "." + point + ".x", 0.5);
+                            y = config.getDouble("locations." + type + "." + teamName + "." + point + ".y", 64);
+                            z = config.getDouble("locations." + type + "." + teamName + "." + point + ".z", 0.5);
+                        }
                     }
+                    map.addLocation(new Location(world, x, y, z), properties);
                 }
-                map.addLocation(new Location(world, x, y, z), properties);
             }
-            config.save(yamlFile);
         } catch (Exception e) {
             e.printStackTrace();
         }

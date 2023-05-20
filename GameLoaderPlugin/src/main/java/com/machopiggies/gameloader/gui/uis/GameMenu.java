@@ -9,6 +9,7 @@ import com.machopiggies.gameloaderapi.game.GameRunner;
 import com.machopiggies.gameloaderapi.game.GameState;
 import com.machopiggies.gameloaderapi.player.GameHost;
 import com.machopiggies.gameloaderapi.util.*;
+import com.machopiggies.gameloaderapi.world.GameMap;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -17,6 +18,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -169,7 +171,32 @@ public class GameMenu extends MenuInterface {
 
         set(4, new MenuInterfaceButton(new ItemBuilder(Material.GRASS)
                 .setDisplayName(Message.HEADER + ChatColor.BOLD + "Select Map")
-                .build()));
+                .build(), (g,e) -> {
+            if (Core.getGameManager().getGameRunner() == null) return;
+            if (Core.getGameManager().getGameRunner().getGame() == null) return;
+            MapListMenu menu = new MapListMenu(player, Core.getGameManager().getGameRunner().getGame()) {
+                @Override
+                protected MenuInterfaceButton createGameButton(File file) {
+                    if (file == null) return new MenuInterfaceButton(new ItemBuilder(Material.GRASS).setDisplayName(ChatColor.RED + "Error whilst loading!").build());
+                    return new MenuInterfaceButton(new ItemBuilder(Material.GRASS)
+                            .setDisplayName(ChatColor.GREEN + String.valueOf(ChatColor.BOLD) + file.getName())
+                            .addLore("", Message.HEADER + "Click" + Message.DEFAULT + " to select map!")
+                            .build(), (g,e) -> clicked(file));
+                }
+
+                @Override
+                protected void clicked(File file) {
+                    if (gm.getGameRunner() == null || !gm.getGameRunner().getState().isStarted()) {
+                        gm.getGameRunner().selectMap(file);
+                        new Message("Game", Message.HEADER + player.getName() + Message.DEFAULT + " set the map to " + Message.HEADER + file.getName() + Message.DEFAULT + "!").send(player);
+                        new GameMenu(player).launch(player);
+                        PlayerUtil.playSoundToAll(Sound.NOTE_PLING, 1f, 1f);
+                    }
+                }
+            };
+            menu.setPreviousGui(this);
+            menu.launch(player);
+        }));
 
         set(13, new MenuInterfaceButton(new ItemBuilder(Material.PAPER)
                 .setDisplayName(Message.HEADER + ChatColor.BOLD + "Map Rotation")
