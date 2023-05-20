@@ -1,19 +1,17 @@
 package com.machopiggies.gameloader.game;
 
 import com.machopiggies.gameloader.Core;
-import com.machopiggies.gameloader.manager.Manager;
 import com.machopiggies.gameloaderapi.event.tick.TickEvent;
 import com.machopiggies.gameloaderapi.event.tick.TickType;
 import com.machopiggies.gameloaderapi.game.*;
 import com.machopiggies.gameloaderapi.kit.GameKit;
 import com.machopiggies.gameloaderapi.scoreboard.GameScoreboard;
 import com.machopiggies.gameloaderapi.team.GameTeam;
+import com.machopiggies.gameloaderapi.world.GameMap;
 import org.bukkit.Bukkit;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
 import java.io.File;
@@ -30,12 +28,13 @@ public class ServerGameRunner implements GameRunner, Runnable, Listener {
     Map<Player, GameTeam> playerTeams;
     Set<GameKit> registeredKits;
     Map<Player, GameKit> playerKits;
-    File mapFolder;
-    World map;
+    File mapFile;
+    GameMap map;
 
     GameScoreboard scoreboard;
     int countdown;
     boolean doCountdown;
+    boolean mapLoading = false;
 
     public ServerGameRunner(Game game, Plugin plugin) {
         Bukkit.getPluginManager().registerEvents(this, plugin);
@@ -68,7 +67,7 @@ public class ServerGameRunner implements GameRunner, Runnable, Listener {
                 e.printStackTrace();
             }
             selectMap();
-            if (gm.getSettings().isAutoStart()) {
+            if (mapFile != null && gm.getSettings().isAutoStart()) {
                 startCountdown();
             }
         }
@@ -95,6 +94,7 @@ public class ServerGameRunner implements GameRunner, Runnable, Listener {
         if (event.getType() != TickType.SEC) return;
         if (!doCountdown) return;
         if (countdown > 0) countdown--;
+        if (countdown == 10) loadMap();
         if (countdown <= 0) start();
     }
 
@@ -112,7 +112,7 @@ public class ServerGameRunner implements GameRunner, Runnable, Listener {
     public void selectMap() {
         File[] maps = game.getInfo().getMapDirectory().listFiles();
         if (maps == null || maps.length == 0) {
-            mapFolder = null;
+            mapFile = null;
             return;
         }
         selectMap(maps[new Random().nextInt(maps.length)]);
@@ -120,7 +120,18 @@ public class ServerGameRunner implements GameRunner, Runnable, Listener {
 
     @Override
     public void selectMap(File mapFile) {
-        this.mapFolder = mapFile;
+        this.mapFile = mapFile;
+    }
+
+    @Override
+    public void loadMap() {
+        // Won't do this on another thread because it's honestly easier to do it here and track it
+        if (mapFile == null) return;
+        mapLoading = true;
+
+        map = Core.getWorldManager().deepCopyGameWorld(mapFile);
+
+        mapLoading = false;
     }
 
     public Game getGame() {
@@ -152,6 +163,16 @@ public class ServerGameRunner implements GameRunner, Runnable, Listener {
         return false;
     }
 
+    @Override
+    public boolean isMapChosen() {
+        return mapFile != null;
+    }
+
+    @Override
+    public Properties getMapData() {
+        return null;
+    }
+
     public boolean isAlive(Player player) {
         return !spectators.contains(player);
     }
@@ -178,73 +199,7 @@ public class ServerGameRunner implements GameRunner, Runnable, Listener {
     }
 
     public GameKit getKit(Player player) {
-        return new GameKit() {
-
-            @Override
-            public String getName() {
-                return "testkit";
-            }
-
-            @Override
-            public void setName(String name) {
-
-            }
-
-            @Override
-            public String getDisplayName() {
-                return "Test Kit";
-            }
-
-            @Override
-            public void setDisplayName(String displayName) {
-
-            }
-
-            @Override
-            public String[] getDescription() {
-                return new String[0];
-            }
-
-            @Override
-            public void setDescription(String... description) {
-
-            }
-
-            @Override
-            public void setDescription(List<String> description) {
-
-            }
-
-            @Override
-            public ItemStack getIcon() {
-                return null;
-            }
-
-            @Override
-            public void setIcon(ItemStack icon) {
-
-            }
-
-            @Override
-            public boolean has(Player player) {
-                return false;
-            }
-
-            @Override
-            public void apply(Player player) {
-
-            }
-
-            @Override
-            public void select(Player player) {
-
-            }
-
-            @Override
-            public void deselect(Player player) {
-
-            }
-        };
+        return playerKits.get(player);
     }
 
     @Override
@@ -255,6 +210,12 @@ public class ServerGameRunner implements GameRunner, Runnable, Listener {
         }
         playerKits.put(player, kit);
         kit.select(player);
+    }
+
+    @Override
+    public GameKit createKit(GameKit kit) {
+        registeredKits.add(kit);
+        return kit;
     }
 
     public boolean isCountdown() {

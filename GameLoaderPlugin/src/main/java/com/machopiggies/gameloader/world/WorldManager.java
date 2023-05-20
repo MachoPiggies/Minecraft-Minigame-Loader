@@ -11,6 +11,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerJoinEvent;
 
 import java.io.*;
+import java.util.Properties;
 
 public class WorldManager extends Manager {
 
@@ -72,12 +73,85 @@ public class WorldManager extends Manager {
 
     }
 
+    public ServerGameMap deepCopyGameWorld(File worldFile) {
+        String name;
+        File destDir = new File(Bukkit.getServer().getWorldContainer(), name = "arcademap-GameLobby-" + TextUtil.randomString(16));
+        try {
+            FileUtils.copyDirectory(worldFile, destDir);
+            File[] files = destDir.listFiles();
+            if (files == null) return null;
+            for (File file : files) {
+                if (!file.isFile()) continue;
+                if (!file.getName().equalsIgnoreCase("uid.dat")) continue;
+                file.delete();
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        World world = Bukkit.getServer().createWorld(new WorldCreator(name));
+
+        ServerGameMap map = new ServerGameMap(world);
+
+        File yamlFile;
+        try {
+            yamlFile = new File(worldFile, "map.yml");
+            if (!yamlFile.exists()) {
+                if (yamlFile.createNewFile()) {
+                    Bukkit.getLogger().warning("Could not find a map.yml in " + worldFile.getPath() + ", creating...");
+                } else {
+                    Bukkit.getLogger().severe("Could not find a map.yml in " + worldFile.getPath() + ", creation of file failed!");
+                    return map;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Bukkit.getLogger().severe("Fatal error whilst trying to find map.yml in " + worldFile.getPath());
+            return map;
+        }
+
+        try {
+            YamlConfiguration config = YamlConfiguration.loadConfiguration(yamlFile);
+
+            double x = 0,y = 0,z = 0;
+            for (String type : config.getConfigurationSection("locations").getKeys(false)) {
+                Properties properties = new Properties();
+                properties.setProperty("type", type);
+                for (String teamName : config.getConfigurationSection("locations." + type).getKeys(false)) {
+                    properties.setProperty("team", teamName);
+                    for (String point : config.getConfigurationSection("locations." + type + "." + teamName).getKeys(false)) {
+                        properties.setProperty("point", point);
+                        x = config.getDouble("locations." + type + "." + teamName + "." + point + ".x", 0);
+                        y = config.getDouble("locations." + type + "." + teamName + "." + point + ".y", 0);
+                        z = config.getDouble("locations." + type + "." + teamName + "." + point + ".z", 0);
+                    }
+                }
+                map.addLocation(new Location(world, x, y, z), properties);
+            }
+            config.save(yamlFile);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return map;
+    }
+
     public void deleteLobbyWorlds() {
         File[] files = Bukkit.getWorldContainer().listFiles();
         if (files == null) return;
         for (File file : files) {
             if (!file.isDirectory()) continue;
             if (!file.getName().startsWith("arcademap-GameLobby-")) continue;
+            new Message("Arcade Startup", "Deleting " + file.getPath() + "...").console(false);
+            FileUtil.deleteRecursively(file, Bukkit.getLogger());
+            new Message("Arcade Startup", "Deleted " + file.getPath() + "!").console(false);
+        }
+    }
+
+    public void deleteGameWorlds() {
+        File[] files = Bukkit.getWorldContainer().listFiles();
+        if (files == null) return;
+        for (File file : files) {
+            if (!file.isDirectory()) continue;
+            if (!file.getName().startsWith("arcademap-Game-")) continue;
             new Message("Arcade Startup", "Deleting " + file.getPath() + "...").console(false);
             FileUtil.deleteRecursively(file, Bukkit.getLogger());
             new Message("Arcade Startup", "Deleted " + file.getPath() + "!").console(false);

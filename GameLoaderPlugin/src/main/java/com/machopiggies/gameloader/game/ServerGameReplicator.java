@@ -4,6 +4,7 @@ import com.machopiggies.gameloader.team.ServerGameTeam;
 import com.machopiggies.gameloaderapi.game.GameManager;
 import com.machopiggies.gameloaderapi.game.GameReplicator;
 import com.machopiggies.gameloaderapi.game.GameSettings;
+import com.machopiggies.gameloaderapi.kit.GameKit;
 import com.machopiggies.gameloaderapi.team.GameTeam;
 import org.bukkit.ChatColor;
 
@@ -19,6 +20,11 @@ public class ServerGameReplicator implements GameReplicator {
         GameTeam team = new ServerGameTeam(name, displayName, color);
         gm.getGameRunner().getTeams().add(team);
         return team;
+    }
+
+    @Override
+    public GameKit createKit(GameKit kit) {
+        return gm.getGameRunner().createKit(kit);
     }
 
     @Override

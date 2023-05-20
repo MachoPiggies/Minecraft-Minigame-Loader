@@ -14,10 +14,13 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Core extends JavaPlugin {
 
     static Core self;
+    static ExecutorService executors;
     List<Manager> managers;
     Ticker ticker;
 
@@ -26,6 +29,8 @@ public class Core extends JavaPlugin {
         self = this;
         long startTime = System.nanoTime();
         getLogger().info("Enabling " + this.getClass().getSimpleName());
+
+        executors = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
 
         saveDefaultConfig();
         managers = new ArrayList<>();
@@ -57,6 +62,8 @@ public class Core extends JavaPlugin {
 
         killManagers();
 
+        executors.shutdown();
+        executors = null;
         self = null;
 
         getLogger().info("Disabled " + this.getClass().getSimpleName());
@@ -100,5 +107,9 @@ public class Core extends JavaPlugin {
 
     public static WorldManager getWorldManager() {
         return worldManager;
+    }
+
+    public static ExecutorService getExecutorService() {
+        return executors;
     }
 }

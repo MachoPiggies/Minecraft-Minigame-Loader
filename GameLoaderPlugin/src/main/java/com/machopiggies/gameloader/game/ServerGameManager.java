@@ -107,6 +107,7 @@ public class ServerGameManager extends Manager implements GameManager {
         WorldManager wm = Core.getWorldManager();
         new Message("Arcade", "Removing all old maps...").console(false);
         wm.deleteLobbyWorlds();
+        wm.deleteGameWorlds();
         new Message("Arcade", "Creating game lobby world (" + wm.getLobbyWorldName() + ")...").console(false);
         wm.deepCopyLobbyWorld();
         new Message("Arcade", "Lobby world created, should now be ready!").console(false);
@@ -128,7 +129,7 @@ public class ServerGameManager extends Manager implements GameManager {
                 if (gameRunner.getGame() != null) {
                     if (gameRunner.isEliminated(player)) {
                         gameRunner.getScoreboard().setSpectating(player);
-                    } else {
+                    } else if (gameRunner.getTeam(player) != null) {
                         gameRunner.getScoreboard().setPlayerTeam(player, gameRunner.getTeam(player));
                     }
                 }
@@ -150,11 +151,15 @@ public class ServerGameManager extends Manager implements GameManager {
                         .register(LoaderScoreboardLine.GAME_SPACER)
                         .register(LoaderScoreboardLine.GAME_NAME)
                         .register(LoaderScoreboardLine.GAME_VALUE)
+                        .register(LoaderScoreboardLine.MAP_SPACER)
+                        .register(LoaderScoreboardLine.MAP_NAME)
+                        .register(LoaderScoreboardLine.MAP_VALUE)
                         .recalculate();
 
                 scoreboard.get(LoaderScoreboardLine.PLAYERS_NAME).write(Message.HEADER + ChatColor.BOLD + "Players");
                 scoreboard.get(LoaderScoreboardLine.KIT_NAME).write(Message.HEADER + ChatColor.BOLD + "Kit");
                 scoreboard.get(LoaderScoreboardLine.GAME_NAME).write(Message.HEADER + ChatColor.BOLD + "Game");
+                scoreboard.get(LoaderScoreboardLine.MAP_NAME).write(Message.HEADER + ChatColor.BOLD + "Map");
             }
 
             @Override
@@ -169,17 +174,29 @@ public class ServerGameManager extends Manager implements GameManager {
                     VoteOption<Game> vote = gameVote.getVote(scoreboard.getOwner());
                     scoreboard.get(LoaderScoreboardLine.GAME_NAME).write(Message.HEADER + ChatColor.BOLD + "Vote");
                     scoreboard.get(LoaderScoreboardLine.GAME_VALUE).write(vote != null ? vote.getDisplayName() : "None");
+                    scoreboard.get(LoaderScoreboardLine.MAP_NAME).write(Message.HEADER + ChatColor.BOLD + "Map");
+                    scoreboard.get(LoaderScoreboardLine.MAP_VALUE).write(gameRunner.isMapChosen() ? gameRunner.getMapData().getProperty("displayName") : "None");
                 } else {
                     if (games.size() == 0) {
-                        scoreboard.setSidebarName(ChatColor.BOLD + "No games installed");
+                        scoreboard.setSidebarName(ChatColor.RED + String.valueOf(ChatColor.BOLD) + "No games installed");
                         scoreboard.get(LoaderScoreboardLine.PLAYERS_VALUE).write(String.valueOf(Bukkit.getOnlinePlayers().size()));
                         scoreboard.get(LoaderScoreboardLine.KIT_VALUE).write("Unknown");
                         scoreboard.get(LoaderScoreboardLine.GAME_VALUE).write("Unknown");
+                        scoreboard.get(LoaderScoreboardLine.MAP_VALUE).write("Unknown");
                     } else if (gameRunner == null) {
-                        scoreboard.setSidebarName(ChatColor.BOLD + "No game selected");
+                        scoreboard.setSidebarName(ChatColor.RED + String.valueOf(ChatColor.BOLD) + "No game selected");
                         scoreboard.get(LoaderScoreboardLine.PLAYERS_VALUE).write(String.valueOf(Bukkit.getOnlinePlayers().size()));
                         scoreboard.get(LoaderScoreboardLine.KIT_VALUE).write("Unknown");
                         scoreboard.get(LoaderScoreboardLine.GAME_VALUE).write("Unknown");
+                        scoreboard.get(LoaderScoreboardLine.MAP_VALUE).write("Unknown");
+                    } else if (!gameRunner.isMapChosen()) {
+                        GameKit kit = gameRunner.getKit(scoreboard.getOwner());
+
+                        scoreboard.setSidebarName(ChatColor.RED + String.valueOf(ChatColor.BOLD) + "No map selected");
+                        scoreboard.get(LoaderScoreboardLine.PLAYERS_VALUE).write(String.valueOf(Bukkit.getOnlinePlayers().size() + (gameRunner.getGame() != null ? "/" + gameRunner.getGame().getInfo().getMaxPlayers() : "")));
+                        scoreboard.get(LoaderScoreboardLine.KIT_VALUE).write(kit != null ? kit.getDisplayName() : "Default");
+                        scoreboard.get(LoaderScoreboardLine.GAME_VALUE).write(gameRunner.getGame().getInfo().getName());
+                        scoreboard.get(LoaderScoreboardLine.MAP_VALUE).write("Unknown");
                     } else {
                         int countdown = gameRunner.getCountdown();
                         GameState state = gameRunner.getState();
@@ -204,9 +221,7 @@ public class ServerGameManager extends Manager implements GameManager {
                             GameKit kit = gameRunner.getKit(scoreboard.getOwner());
                             GameTeam team = gameRunner.getTeam(scoreboard.getOwner());
 
-                            if (kit != null) {
-                                kitName = kit.getDisplayName();
-                            }
+                            kitName = kit != null ? kit.getDisplayName() : "Default";
 
                             if (team != null) {
                                 teamColor = team.getColor();
@@ -218,6 +233,9 @@ public class ServerGameManager extends Manager implements GameManager {
 
                         scoreboard.get(LoaderScoreboardLine.GAME_NAME).write(teamColor + Message.HEADER + ChatColor.BOLD + "Game");
                         scoreboard.get(LoaderScoreboardLine.GAME_VALUE).write(gameRunner.getGame().getInfo().getName());
+
+                        scoreboard.get(LoaderScoreboardLine.MAP_NAME).write(Message.HEADER + ChatColor.BOLD + "Map");
+                        scoreboard.get(LoaderScoreboardLine.MAP_VALUE).write(gameRunner.isMapChosen() ? gameRunner.getMapData().getProperty("displayName") : "None");
                     }
                 }
             }
@@ -225,7 +243,76 @@ public class ServerGameManager extends Manager implements GameManager {
 
         try {
             loadGame(new Game() {
+                @Override
+                public void onLoad() {
+                    gameRunner.createKit(new GameKit() {
 
+                        @Override
+                        public String getName() {
+                            return "testkit";
+                        }
+
+                        @Override
+                        public void setName(String name) {
+
+                        }
+
+                        @Override
+                        public String getDisplayName() {
+                            return "Test Kit";
+                        }
+
+                        @Override
+                        public void setDisplayName(String displayName) {
+
+                        }
+
+                        @Override
+                        public String[] getDescription() {
+                            return new String[0];
+                        }
+
+                        @Override
+                        public void setDescription(String... description) {
+
+                        }
+
+                        @Override
+                        public void setDescription(List<String> description) {
+
+                        }
+
+                        @Override
+                        public ItemStack getIcon() {
+                            return null;
+                        }
+
+                        @Override
+                        public void setIcon(ItemStack icon) {
+
+                        }
+
+                        @Override
+                        public boolean has(Player player) {
+                            return false;
+                        }
+
+                        @Override
+                        public void apply(Player player) {
+
+                        }
+
+                        @Override
+                        public void select(Player player) {
+
+                        }
+
+                        @Override
+                        public void deselect(Player player) {
+
+                        }
+                    });
+                }
             }, new DynamicGameInfo("Test Game", "testgame", "testtesttest", "1.0", new ArrayList<>(), new ArrayList<>(), 20, new ItemStack(Material.GRASS)));
         } catch (Exception e) {
             e.printStackTrace();

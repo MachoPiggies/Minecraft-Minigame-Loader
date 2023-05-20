@@ -1,5 +1,6 @@
 package com.machopiggies.gameloaderapi.game;
 
+import com.machopiggies.gameloaderapi.kit.GameKit;
 import com.machopiggies.gameloaderapi.team.GameTeam;
 import org.bukkit.ChatColor;
 
@@ -15,6 +16,13 @@ public interface GameReplicator {
      * @return the new team
      */
     GameTeam createTeam(String name, String displayName, ChatColor color);
+
+    /**
+     * Creates a kit for a game
+     * @param kit the new kit
+     * @return the new kit
+     */
+    GameKit createKit(GameKit kit);
 
     /**
      * Removes a team from a game

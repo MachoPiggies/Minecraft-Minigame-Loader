@@ -10,5 +10,8 @@ public enum LoaderScoreboardLine implements ScoreboardLine {
     KIT_VALUE,
     GAME_SPACER,
     GAME_NAME,
-    GAME_VALUE;
+    GAME_VALUE,
+    MAP_SPACER,
+    MAP_NAME,
+    MAP_VALUE;
 }

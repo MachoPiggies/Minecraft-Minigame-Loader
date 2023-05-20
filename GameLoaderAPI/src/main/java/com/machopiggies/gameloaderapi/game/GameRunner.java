@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 /**
@@ -33,6 +34,8 @@ public interface GameRunner extends Runnable {
     void selectMap();
 
     void selectMap(File mapFile);
+
+    void loadMap();
 
     /**
      * Gets the game that this game runner is made to work alongside
@@ -78,6 +81,10 @@ public interface GameRunner extends Runnable {
      */
     boolean isEliminated(Player player);
 
+    boolean isMapChosen();
+
+    Properties getMapData();
+
     /**
      * Gets the scoreboard manager for this game instance
      * @return the scoreboard manager which can edit player scoreboards
@@ -115,4 +122,6 @@ public interface GameRunner extends Runnable {
      * @param kit the kit the player is going to use
      */
     void setKit(Player player, GameKit kit);
+
+    GameKit createKit(GameKit kit);
 }
