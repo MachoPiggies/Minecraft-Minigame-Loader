@@ -43,7 +43,7 @@ public class GameLoaderCommand extends CommandManager {
     @GameCommand(name = "gamevote", description = "Shows the loader version", aliases = {"gv"})
     public void gameVote(CommandSender sender, Command command, String s, String[] args) {
         if (sender instanceof Player) {
-            if (!gm.getGameVote().isActive()) {
+            if (gm.getGameVote() == null || !gm.getGameVote().isActive()) {
                 new Message("Game", "There is no game vote currently taking place!").send(sender);
                 return;
             }
@@ -53,6 +53,7 @@ public class GameLoaderCommand extends CommandManager {
                 protected MenuInterfaceButton createGameButton(Game game) {
                     return new MenuInterfaceButton(new ItemBuilder(game.getInfo().getItem().clone())
                             .setDisplayName(ChatColor.GREEN + String.valueOf(ChatColor.BOLD) + game.getInfo().getName() + " (" + game.getInfo().getInternalName() + ")")
+                            .addGlow(gm.getGameVote() != null && gm.getGameVote().getVote(player) != null && gm.getGameVote().getVote(player).getObject().equals(game))
                             .setLore("")
                             .addLore(TextUtil.wrap(Message.DEFAULT + game.getInfo().getDescription(), 36))
                             .addLore("")
@@ -63,11 +64,13 @@ public class GameLoaderCommand extends CommandManager {
                 @Override
                 protected void clicked(Game game) {
                     if (gm.getGameVote() != null && gm.getGameVote().isActive()) {
-                        player.closeInventory();
                         VoteOption<Game> vote = gm.getGameVote().getOptionFromObject(game);
                         if (vote == null) return;
+                        gm.getGameVote().addVote(game, player.getUniqueId());
+                        update();
                         new Message("Game", "Successfully voted for " + Message.HEADER + game.getInfo().getName() + Message.DEFAULT + "!").send(player);
                         ((Player) sender).playSound(((Player) sender).getLocation(), Sound.NOTE_PLING, 1f, 1f);
+                        player.closeInventory();
                     }
                 }
             };

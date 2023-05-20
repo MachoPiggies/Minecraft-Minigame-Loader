@@ -1,5 +1,7 @@
 package com.machopiggies.gameloaderapi.vote;
 
+import org.bukkit.entity.Player;
+
 import java.util.Map;
 import java.util.UUID;
 
@@ -17,4 +19,5 @@ public interface Vote<E> extends Runnable {
     void start();
     void stop();
     void setCallback(VoteCallback callback);
+    VoteOption<E> getVote(Player player);
 }

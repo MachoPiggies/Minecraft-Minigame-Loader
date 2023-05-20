@@ -7,6 +7,7 @@ import com.machopiggies.gameloaderapi.vote.Vote;
 import com.machopiggies.gameloaderapi.vote.VoteCallback;
 import com.machopiggies.gameloaderapi.vote.VoteOption;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
@@ -44,7 +45,7 @@ public class GameVote<E> implements Vote<E>, Listener {
     @Override
     public VoteOption<E> getOptionFromObject(E object) {
         for (VoteOption<E> option : items.keySet()) {
-            if (!option.equals(object)) continue;
+            if (!option.getObject().equals(object)) continue;
             return option;
         }
         return null;
@@ -115,6 +116,15 @@ public class GameVote<E> implements Vote<E>, Listener {
     @Override
     public void setCallback(VoteCallback callback) {
         this.callback = callback;
+    }
+
+    @Override
+    public VoteOption<E> getVote(Player player) {
+        for (Map.Entry<VoteOption<E>, Set<UUID>> entry : items.entrySet()) {
+            if (!entry.getValue().contains(player.getUniqueId())) continue;
+            return entry.getKey();
+        }
+        return null;
     }
 
     @Override

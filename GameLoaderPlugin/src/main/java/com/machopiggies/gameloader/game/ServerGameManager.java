@@ -80,7 +80,6 @@ public class ServerGameManager extends Manager implements GameManager {
                 out = new FileOutputStream(file);
                 objOut = new ObjectOutputStream(out);
                 objOut.writeObject(new String[0]);
-                objOut.writeByte(1);
                 rotation = new CircularQueue<>(games.values().stream().map(game -> game.getInfo().getInternalName()).collect(Collectors.toList()));
             }
         } catch (IOException | ClassNotFoundException e) {
@@ -167,8 +166,9 @@ public class ServerGameManager extends Manager implements GameManager {
                     scoreboard.get(LoaderScoreboardLine.KIT_NAME).write(Message.HEADER + ChatColor.BOLD + "Kit");
                     scoreboard.get(LoaderScoreboardLine.KIT_VALUE).write("Unknown");
 
-                    scoreboard.get(LoaderScoreboardLine.GAME_NAME).write(Message.HEADER + ChatColor.BOLD + "Game");
-                    scoreboard.get(LoaderScoreboardLine.GAME_VALUE).write("Voting...");
+                    VoteOption<Game> vote = gameVote.getVote(scoreboard.getOwner());
+                    scoreboard.get(LoaderScoreboardLine.GAME_NAME).write(Message.HEADER + ChatColor.BOLD + "Vote");
+                    scoreboard.get(LoaderScoreboardLine.GAME_VALUE).write(vote != null ? vote.getDisplayName() : "None");
                 } else {
                     if (games.size() == 0) {
                         scoreboard.setSidebarName(ChatColor.BOLD + "No games installed");

@@ -104,6 +104,7 @@ public class GameMenu extends MenuInterface {
                     }
                 }
             };
+            menu.setPreviousGui(this);
             menu.launch(player);
         }));
 
@@ -162,6 +163,7 @@ public class GameMenu extends MenuInterface {
                             .build()));
                 }
             };
+            menu.setPreviousGui(this);
             menu.launch(player);
         }));
 
@@ -205,6 +207,7 @@ public class GameMenu extends MenuInterface {
                                 ).build());
                     }
                 };
+                menu.setPreviousGui(this);
                 menu.launch(player);
             }));
         }
@@ -235,6 +238,7 @@ public class GameMenu extends MenuInterface {
                     }
                 }
             };
+            menu.setPreviousGui(this);
             menu.launch(player);
         }));
 
@@ -242,6 +246,7 @@ public class GameMenu extends MenuInterface {
                 .setDisplayName(Message.HEADER + ChatColor.BOLD + "Settings")
                 .build(), (g,e) -> {
             GameSettingsPanelMenu menu = new GameSettingsPanelMenu(player);
+            menu.setPreviousGui(this);
             menu.launch(player);
         }));
 
@@ -274,7 +279,7 @@ public class GameMenu extends MenuInterface {
                     hoverMessage.setColor(ChatColor.GOLD.asBungee());
 
                     command.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[]{hoverMessage}));
-                    command.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/gameloader gamevote"));
+                    command.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/gameloader gamevote"));
                     for (Player p : Bukkit.getOnlinePlayers()) {
                         new Message(command).sendSpecial(p);
                     }
