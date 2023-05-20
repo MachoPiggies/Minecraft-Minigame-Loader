@@ -9,12 +9,14 @@ import com.machopiggies.gameloaderapi.kit.GameKit;
 import com.machopiggies.gameloaderapi.scoreboard.GameScoreboard;
 import com.machopiggies.gameloaderapi.team.GameTeam;
 import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
+import java.io.File;
 import java.util.*;
 
 public class ServerGameRunner implements GameRunner, Runnable, Listener {
@@ -28,6 +30,8 @@ public class ServerGameRunner implements GameRunner, Runnable, Listener {
     Map<Player, GameTeam> playerTeams;
     Set<GameKit> registeredKits;
     Map<Player, GameKit> playerKits;
+    File mapFolder;
+    World map;
 
     GameScoreboard scoreboard;
     int countdown;
@@ -63,6 +67,7 @@ public class ServerGameRunner implements GameRunner, Runnable, Listener {
                 }
                 e.printStackTrace();
             }
+            selectMap();
             if (gm.getSettings().isAutoStart()) {
                 startCountdown();
             }
@@ -101,6 +106,21 @@ public class ServerGameRunner implements GameRunner, Runnable, Listener {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void selectMap() {
+        File[] maps = game.getInfo().getMapDirectory().listFiles();
+        if (maps == null || maps.length == 0) {
+            mapFolder = null;
+            return;
+        }
+        selectMap(maps[new Random().nextInt(maps.length)]);
+    }
+
+    @Override
+    public void selectMap(File mapFile) {
+        this.mapFolder = mapFile;
     }
 
     public Game getGame() {

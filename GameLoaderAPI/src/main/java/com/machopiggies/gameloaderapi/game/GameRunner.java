@@ -6,6 +6,7 @@ import com.machopiggies.gameloaderapi.scoreboard.MainScoreboard;
 import com.machopiggies.gameloaderapi.team.GameTeam;
 import org.bukkit.entity.Player;
 
+import java.io.File;
 import java.util.List;
 import java.util.Set;
 
@@ -28,6 +29,10 @@ public interface GameRunner extends Runnable {
      * Stops a game
      */
     void stop();
+
+    void selectMap();
+
+    void selectMap(File mapFile);
 
     /**
      * Gets the game that this game runner is made to work alongside
