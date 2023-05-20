@@ -15,7 +15,7 @@ Proper, well-made Game Loaders are custom-made for servers, by developers who ha
  * Loading on development servers to make small mini-games for your friends OR show off to potential employers
  * Learning from the way code here is set out and how you can improve your own
 
-If you are looking for a loader that can cater to players on your network, please reach out to a qualified developer on SpigotMC or another source who will be able to advise and help you to creating a loader and games that best suit you and your servers needs.
+If you are looking for a loader that can cater to players on your network, please reach out to a qualified developer on SpigotMC or another source who will be able to advise and help you on creating a loader and games that best suit you and your servers needs.
 
 **I will not provide any support for 'incorrect' uses of this projects code**
 

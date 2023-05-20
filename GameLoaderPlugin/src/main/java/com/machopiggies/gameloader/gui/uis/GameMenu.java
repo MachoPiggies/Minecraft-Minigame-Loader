@@ -29,7 +29,7 @@ public class GameMenu extends MenuInterface {
     private GameManager gm;
 
     public GameMenu(Player player) {
-        super("Game", 27);
+        super("Game", 18);
         this.player = player;
         this.gm = Core.getGameManager();
 
@@ -169,6 +169,46 @@ public class GameMenu extends MenuInterface {
             menu.launch(player);
         }));
 
+        if (gm.getGameVote() != null && gm.getGameVote().isActive()) {
+            set(13, new MenuInterfaceButton(new ItemBuilder(Material.BOOK_AND_QUILL)
+                    .setDisplayName(Message.HEADER + ChatColor.BOLD + "Game Voting")
+                    .addGlow()
+                    .build(), (g, e) -> {
+                gm.getGameVote().stop();
+                new Message("Game", Message.HEADER + player.getName() + Message.DEFAULT + " has stopped the game vote!").send(player);
+                PlayerUtil.playSoundToAll(Sound.NOTE_PLING, 1f, 1f);
+                update();
+            }));
+        } else {
+            set(13, new MenuInterfaceButton(new ItemBuilder(Material.BOOK_AND_QUILL)
+                    .setDisplayName(Message.HEADER + ChatColor.BOLD + "Game Voting")
+                    .build(), (g, e) -> {
+                if (gm.getGameRunner() == null) return;
+                if (gm.getGameRunner().getState().isStarted()) return;
+                gm.getGameRunner().stopCountdown();
+
+                gm.startGameVote();
+                new Message("Game", Message.HEADER + player.getName() + Message.DEFAULT + " has started a game vote!").send(player);
+
+                TextComponent command = new TextComponent("Click to vote!");
+                command.setColor(ChatColor.LIGHT_PURPLE.asBungee());
+                command.setBold(true);
+                command.setUnderlined(true);
+
+                TextComponent hoverMessage = new TextComponent("Click to open vote gui!");
+                hoverMessage.setColor(ChatColor.GOLD.asBungee());
+
+                command.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[]{hoverMessage}));
+                command.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/gameloader gamevote"));
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    new Message(command).sendSpecial(p);
+                }
+
+                PlayerUtil.playSoundToAll(Sound.LEVEL_UP, 1f, 1f);
+                update();
+            }));
+        }
+
         set(4, new MenuInterfaceButton(new ItemBuilder(Material.GRASS)
                 .setDisplayName(Message.HEADER + ChatColor.BOLD + "Select Map")
                 .build(), (g,e) -> {
@@ -197,10 +237,6 @@ public class GameMenu extends MenuInterface {
             menu.setPreviousGui(this);
             menu.launch(player);
         }));
-
-        set(13, new MenuInterfaceButton(new ItemBuilder(Material.PAPER)
-                .setDisplayName(Message.HEADER + ChatColor.BOLD + "Map Rotation")
-                .build()));
 
         if (gm.isHost(player.getUniqueId())) {
             set(6, new MenuInterfaceButton(new ItemBuilder(Material.BEACON)
@@ -275,52 +311,6 @@ public class GameMenu extends MenuInterface {
             GameSettingsPanelMenu menu = new GameSettingsPanelMenu(player);
             menu.setPreviousGui(this);
             menu.launch(player);
-        }));
-
-        if (gm.getGameVote() != null && gm.getGameVote().isActive()) {
-            set(21, new MenuInterfaceButton(new ItemBuilder(Material.BOOK_AND_QUILL)
-                    .setDisplayName(Message.HEADER + ChatColor.BOLD + "Game Voting")
-                    .addGlow()
-                    .build(), (g, e) -> {
-                gm.getGameVote().stop();
-                new Message("Game", Message.HEADER + player.getName() + Message.DEFAULT + " has stopped the game vote!").send(player);
-                PlayerUtil.playSoundToAll(Sound.NOTE_PLING, 1f, 1f);
-                update();
-            }));
-        } else {
-            set(21, new MenuInterfaceButton(new ItemBuilder(Material.BOOK_AND_QUILL)
-                    .setDisplayName(Message.HEADER + ChatColor.BOLD + "Game Voting")
-                    .build(), (g, e) -> {
-                if (gm.getGameRunner() == null) return;
-                if (gm.getGameRunner().getState().isStarted()) return;
-                gm.getGameRunner().stopCountdown();
-
-                gm.startGameVote();
-                new Message("Game", Message.HEADER + player.getName() + Message.DEFAULT + " has started a game vote!").send(player);
-
-                TextComponent command = new TextComponent("Click to vote!");
-                command.setColor(ChatColor.LIGHT_PURPLE.asBungee());
-                command.setBold(true);
-                command.setUnderlined(true);
-
-                TextComponent hoverMessage = new TextComponent("Click to open vote gui!");
-                hoverMessage.setColor(ChatColor.GOLD.asBungee());
-
-                command.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[]{hoverMessage}));
-                command.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/gameloader gamevote"));
-                for (Player p : Bukkit.getOnlinePlayers()) {
-                    new Message(command).sendSpecial(p);
-                }
-
-                PlayerUtil.playSoundToAll(Sound.LEVEL_UP, 1f, 1f);
-                update();
-            }));
-        }
-
-        set(23, new MenuInterfaceButton(new ItemBuilder(Material.BOOK_AND_QUILL)
-                .setDisplayName(Message.HEADER + ChatColor.BOLD + "Map Voting")
-                .build(), (g,e) -> {
-
         }));
     }
 

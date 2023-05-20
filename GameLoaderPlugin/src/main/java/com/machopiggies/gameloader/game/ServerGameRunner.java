@@ -29,6 +29,7 @@ public class ServerGameRunner implements GameRunner, Runnable, Listener {
     Set<GameKit> registeredKits;
     Map<Player, GameKit> playerKits;
     File mapFile;
+    File loadedMap;
     GameMap map;
 
     GameScoreboard scoreboard;
@@ -130,6 +131,7 @@ public class ServerGameRunner implements GameRunner, Runnable, Listener {
         // Won't do this on another thread because it's honestly easier to do it here and track it
         if (mapFile == null) return;
         mapLoading = true;
+        loadedMap = mapFile;
 
         map = Core.getWorldManager().deepCopyGameWorld(mapFile);
 
