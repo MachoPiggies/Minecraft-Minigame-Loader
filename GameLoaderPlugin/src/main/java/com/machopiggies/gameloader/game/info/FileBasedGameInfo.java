@@ -1,5 +1,6 @@
 package com.machopiggies.gameloader.game.info;
 
+import com.machopiggies.gameloaderapi.game.Game;
 import com.machopiggies.gameloaderapi.game.GameInfo;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
@@ -18,7 +19,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 public class FileBasedGameInfo implements GameInfo {
-    private File dataFolder;
+    private File dataFolder, mapsFolder;
     private String mainClass, name, internalName, description, version;
     private List<UUID> authors, contributors;
     private int maxPlayers;
@@ -63,13 +64,13 @@ public class FileBasedGameInfo implements GameInfo {
                 contributors.add(uuid);
             }
             item = new ItemStack(Material.valueOf(yml.getString("item.material", "GRASS")), 1, (byte) yml.getInt("item.data"));
-            dataFolder = findDataFolder();
+            findDataFolders();
         } catch (IOException | YAMLException ex) {
             ex.printStackTrace();
         }
     }
 
-    private File findDataFolder() {
+    private void findDataFolders() {
         File file = new File(plugin.getDataFolder(), "games");
         if (!plugin.getDataFolder().exists()) {
             if (!plugin.getDataFolder().mkdir()) {
@@ -81,13 +82,18 @@ public class FileBasedGameInfo implements GameInfo {
                 Bukkit.getLogger().info("Attempt at creating games folder failed!");
             }
         }
-        File dataFolder = new File(file, internalName);
+        dataFolder = new File(file, internalName);
         if (!dataFolder.exists()) {
             if (!dataFolder.mkdirs()) {
                 Bukkit.getLogger().info("Attempt at creating datafolder for game " + internalName + " failed!");
             }
         }
-        return dataFolder;
+        mapsFolder = new File(dataFolder, "maps");
+        if (!mapsFolder.exists()) {
+            if (!mapsFolder.mkdirs()) {
+                Bukkit.getLogger().info("Attempt at creating map folder for game " + internalName + " failed!");
+            }
+        }
     }
 
     @Override
@@ -141,6 +147,11 @@ public class FileBasedGameInfo implements GameInfo {
     }
 
     @Override
+    public File getMapDirectory() {
+        return mapsFolder;
+    }
+
+    @Override
     public String toString() {
         Map<String, Object> map = new HashMap<>();
         map.put("mainClass", mainClass);
@@ -151,6 +162,7 @@ public class FileBasedGameInfo implements GameInfo {
         map.put("authors", authors);
         map.put("contributors", contributors);
         map.put("item", item.toString());
+        map.put("mapsFolder", mapsFolder);
         return map.toString();
     }
 }

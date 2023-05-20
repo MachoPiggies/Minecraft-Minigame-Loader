@@ -305,6 +305,47 @@ public class ServerGameManager extends Manager implements GameManager {
     @Override
     public void loadGame(Game game, GameInfo info) throws InvalidGameException {
         Validate.isTrue(info instanceof DynamicGameInfo, "game info for internal game must be of type DynamicGameInfo");
+
+        File file = new File(plugin.getDataFolder(), "games");
+        if (!plugin.getDataFolder().exists()) {
+            if (!plugin.getDataFolder().mkdir()) {
+                Bukkit.getLogger().info("Attempt at creating plugin datafolder failed!");
+            }
+        }
+        if (!file.exists()) {
+            if (!file.mkdirs()) {
+                Bukkit.getLogger().info("Attempt at creating games folder failed!");
+            }
+        }
+        File gameDataFolder = new File(file, info.getInternalName());
+        if (!gameDataFolder.exists()) {
+            if (!gameDataFolder.mkdirs()) {
+                Bukkit.getLogger().info("Attempt at creating game folder failed!");
+            }
+        }
+        File mapsFolder = new File(gameDataFolder, "maps");
+        if (!mapsFolder.exists()) {
+            try {
+                if (!mapsFolder.createNewFile()) {
+                    Bukkit.getLogger().info("Attempt at creating map folder failed!");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        File configFile = new File(gameDataFolder, "config.yml");
+        if (!configFile.exists()) {
+            try {
+                if (!configFile.createNewFile()) {
+                    Bukkit.getLogger().info("Attempt at creating game config file failed!");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        ((DynamicGameInfo) info).setMapFolder(mapsFolder);
+        ((DynamicGameInfo) info).setDataFolder(gameDataFolder);
+
         game.setInfo(info);
         try {
             game.setEnabled(true);

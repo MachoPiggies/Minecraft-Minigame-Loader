@@ -79,4 +79,6 @@ public interface GameInfo {
      * @return game icon
      */
     ItemStack getItem();
+
+    File getMapDirectory();
 }

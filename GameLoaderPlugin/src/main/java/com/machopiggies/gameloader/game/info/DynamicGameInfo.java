@@ -1,10 +1,12 @@
 package com.machopiggies.gameloader.game.info;
 
+import com.machopiggies.gameloaderapi.game.Game;
 import com.machopiggies.gameloaderapi.game.GameInfo;
 import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
 import java.util.*;
+import java.util.function.Function;
 
 public class DynamicGameInfo implements GameInfo {
 
@@ -13,6 +15,7 @@ public class DynamicGameInfo implements GameInfo {
     private List<UUID> authors, contributors;
     private int maxPlayers;
     private ItemStack item;
+    private File mapFolder;
 
     public DynamicGameInfo(String name, String internalName, String description, String version, List<UUID> authors, List<UUID> contributors, int maxPlayers, ItemStack item) {
         this.name = name;
@@ -30,6 +33,10 @@ public class DynamicGameInfo implements GameInfo {
     @Override
     public File getDataFolder() {
         return dataFolder;
+    }
+
+    public void setDataFolder(File dataFolder) {
+        this.dataFolder = dataFolder;
     }
 
     @Override
@@ -75,6 +82,15 @@ public class DynamicGameInfo implements GameInfo {
     @Override
     public ItemStack getItem() {
         return item;
+    }
+
+    @Override
+    public File getMapDirectory() {
+        return mapFolder;
+    }
+
+    public void setMapFolder(File mapFolder) {
+        this.mapFolder = mapFolder;
     }
 
     @Override
