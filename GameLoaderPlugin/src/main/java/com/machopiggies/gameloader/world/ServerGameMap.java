@@ -4,6 +4,7 @@ import com.machopiggies.gameloader.Core;
 import com.machopiggies.gameloaderapi.game.GameRunner;
 import com.machopiggies.gameloaderapi.team.GameTeam;
 import com.machopiggies.gameloaderapi.world.GameMap;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -27,7 +28,7 @@ public class ServerGameMap implements GameMap {
     public Location findSpawnPoint(Player player) {
         List<Location> possibles = new ArrayList<>();
         for (Map.Entry<Location, Properties> entry : locations.entrySet()) {
-            if (!entry.getValue().contains("type")) continue;
+            if (!entry.getValue().stringPropertyNames().contains("type")) continue;
             String typeRequirement = entry.getValue().getProperty("type");
             String teamRequirement = entry.getValue().getProperty("team", "neutral");
 

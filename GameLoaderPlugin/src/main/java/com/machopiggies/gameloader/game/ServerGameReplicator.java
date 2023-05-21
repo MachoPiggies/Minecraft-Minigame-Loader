@@ -3,6 +3,7 @@ package com.machopiggies.gameloader.game;
 import com.machopiggies.gameloader.team.ServerGameTeam;
 import com.machopiggies.gameloaderapi.game.GameManager;
 import com.machopiggies.gameloaderapi.game.GameReplicator;
+import com.machopiggies.gameloaderapi.game.GameRunner;
 import com.machopiggies.gameloaderapi.game.GameSettings;
 import com.machopiggies.gameloaderapi.kit.GameKit;
 import com.machopiggies.gameloaderapi.team.GameTeam;
@@ -25,6 +26,11 @@ public class ServerGameReplicator implements GameReplicator {
     @Override
     public GameKit createKit(GameKit kit) {
         return gm.getGameRunner().createKit(kit);
+    }
+
+    @Override
+    public GameRunner getRunner() {
+        return gm.getGameRunner();
     }
 
     @Override

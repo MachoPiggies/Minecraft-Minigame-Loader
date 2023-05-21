@@ -3,6 +3,8 @@ package com.machopiggies.gameloaderapi.game;
 import com.machopiggies.gameloaderapi.team.GameTeam;
 import com.machopiggies.gameloaderapi.team.TeamDistributor;
 import org.bukkit.ChatColor;
+import org.bukkit.event.Listener;
+import org.bukkit.plugin.Plugin;
 
 /**
  * The {@link Game} object that all games need to superclass to be able to be loaded
@@ -12,6 +14,8 @@ public abstract class Game {
     private GameInfo info;
     private TeamDistributor teamDistributor;
     private GameReplicator replicator;
+
+    private Plugin plugin;
 
     /**
      * Fired when the loader first loads a game into memory, ready to send it live
@@ -136,5 +140,13 @@ public abstract class Game {
      */
     public void setReplicator(GameReplicator replicator) {
         this.replicator = replicator;
+    }
+
+    public Plugin getPlugin() {
+        return plugin;
+    }
+
+    public void setPlugin(Plugin plugin) {
+        this.plugin = plugin;
     }
 }

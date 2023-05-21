@@ -136,9 +136,9 @@ public class WorldManager extends Manager {
                             x = config.getDouble("locations." + type + "." + teamName + "." + point + ".x", 0.5);
                             y = config.getDouble("locations." + type + "." + teamName + "." + point + ".y", 64);
                             z = config.getDouble("locations." + type + "." + teamName + "." + point + ".z", 0.5);
+                            map.addLocation(new Location(world, x, y, z), properties);
                         }
                     }
-                    map.addLocation(new Location(world, x, y, z), properties);
                 }
             }
         } catch (Exception e) {
@@ -169,6 +169,10 @@ public class WorldManager extends Manager {
             FileUtil.deleteRecursively(file, Bukkit.getLogger());
             new Message("Arcade Startup", "Deleted " + file.getPath() + "!").console(false);
         }
+    }
+
+    public World getLobbyWorld() {
+        return lobbyWorld;
     }
 
     public String getLobbyWorldName() {

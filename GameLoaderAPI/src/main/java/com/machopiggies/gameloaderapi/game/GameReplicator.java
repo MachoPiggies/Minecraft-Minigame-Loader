@@ -24,6 +24,8 @@ public interface GameReplicator {
      */
     GameKit createKit(GameKit kit);
 
+    GameRunner getRunner();
+
     /**
      * Removes a team from a game
      * @param team the team to remove

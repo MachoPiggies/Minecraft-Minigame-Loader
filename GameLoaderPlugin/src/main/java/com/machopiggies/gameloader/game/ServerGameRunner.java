@@ -7,6 +7,7 @@ import com.machopiggies.gameloaderapi.game.*;
 import com.machopiggies.gameloaderapi.kit.GameKit;
 import com.machopiggies.gameloaderapi.scoreboard.GameScoreboard;
 import com.machopiggies.gameloaderapi.team.GameTeam;
+import com.machopiggies.gameloaderapi.util.FileUtil;
 import com.machopiggies.gameloaderapi.world.GameMap;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -36,6 +37,7 @@ public class ServerGameRunner implements GameRunner, Runnable, Listener {
     int countdown;
     boolean doCountdown;
     boolean mapLoading = false;
+    boolean stopped = false;
 
     public ServerGameRunner(Game game, Plugin plugin) {
         Bukkit.getPluginManager().registerEvents(this, plugin);
@@ -76,7 +78,15 @@ public class ServerGameRunner implements GameRunner, Runnable, Listener {
 
     @Override
     public void stop() {
-
+        stopped = true;
+        game.onStop();
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            player.teleport(Core.getWorldManager().getSpawnPoint());
+        }
+        game.onUnload();
+        Bukkit.unloadWorld(map.getWorld(), false);
+        FileUtil.deleteRecursively(map.getWorld().getWorldFolder(), Bukkit.getLogger());
+        gm.queueGame();
     }
 
     @Override
@@ -112,8 +122,6 @@ public class ServerGameRunner implements GameRunner, Runnable, Listener {
     @Override
     public void selectMap() {
         File[] maps = game.getInfo().getMapDirectory().listFiles();
-        Bukkit.getLogger().info(Arrays.toString(maps));
-        Bukkit.getLogger().info(game.getInfo().getMapDirectory().getPath());
         if (maps == null || maps.length == 0) {
             mapFile = null;
             return;
@@ -136,6 +144,11 @@ public class ServerGameRunner implements GameRunner, Runnable, Listener {
         map = Core.getWorldManager().deepCopyGameWorld(mapFile);
 
         mapLoading = false;
+    }
+
+    @Override
+    public GameMap getMap() {
+        return map;
     }
 
     public Game getGame() {
@@ -224,5 +237,10 @@ public class ServerGameRunner implements GameRunner, Runnable, Listener {
 
     public boolean isCountdown() {
         return doCountdown;
+    }
+
+    @Override
+    public boolean isStopped() {
+        return stopped;
     }
 }

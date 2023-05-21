@@ -4,6 +4,7 @@ import com.machopiggies.gameloaderapi.kit.GameKit;
 import com.machopiggies.gameloaderapi.scoreboard.GameScoreboard;
 import com.machopiggies.gameloaderapi.scoreboard.MainScoreboard;
 import com.machopiggies.gameloaderapi.team.GameTeam;
+import com.machopiggies.gameloaderapi.world.GameMap;
 import org.bukkit.entity.Player;
 
 import java.io.File;
@@ -36,6 +37,8 @@ public interface GameRunner extends Runnable {
     void selectMap(File mapFile);
 
     void loadMap();
+
+    GameMap getMap();
 
     /**
      * Gets the game that this game runner is made to work alongside
@@ -124,4 +127,6 @@ public interface GameRunner extends Runnable {
     void setKit(Player player, GameKit kit);
 
     GameKit createKit(GameKit kit);
+
+    boolean isStopped();
 }

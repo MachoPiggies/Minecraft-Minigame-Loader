@@ -3,6 +3,7 @@ package com.machopiggies.gameloader.game;
 import com.machopiggies.gameloader.Core;
 import com.machopiggies.gameloader.game.info.DynamicGameInfo;
 import com.machopiggies.gameloader.game.info.FileBasedGameInfo;
+import com.machopiggies.gameloader.games.Spleef;
 import com.machopiggies.gameloader.lobby.LobbyManager;
 import com.machopiggies.gameloader.manager.Manager;
 import com.machopiggies.gameloader.player.ServerHostData;
@@ -242,78 +243,9 @@ public class ServerGameManager extends Manager implements GameManager {
         };
 
         try {
-            loadGame(new Game() {
-                @Override
-                public void onLoad() {
-                    gameRunner.createKit(new GameKit() {
-
-                        @Override
-                        public String getName() {
-                            return "testkit";
-                        }
-
-                        @Override
-                        public void setName(String name) {
-
-                        }
-
-                        @Override
-                        public String getDisplayName() {
-                            return "Test Kit";
-                        }
-
-                        @Override
-                        public void setDisplayName(String displayName) {
-
-                        }
-
-                        @Override
-                        public String[] getDescription() {
-                            return new String[0];
-                        }
-
-                        @Override
-                        public void setDescription(String... description) {
-
-                        }
-
-                        @Override
-                        public void setDescription(List<String> description) {
-
-                        }
-
-                        @Override
-                        public ItemStack getIcon() {
-                            return null;
-                        }
-
-                        @Override
-                        public void setIcon(ItemStack icon) {
-
-                        }
-
-                        @Override
-                        public boolean has(Player player) {
-                            return false;
-                        }
-
-                        @Override
-                        public void apply(Player player) {
-
-                        }
-
-                        @Override
-                        public void select(Player player) {
-
-                        }
-
-                        @Override
-                        public void deselect(Player player) {
-
-                        }
-                    });
-                }
-            }, new DynamicGameInfo("Test Game", "testgame", "testtesttest", "1.0", new ArrayList<>(), new ArrayList<>(), 20, new ItemStack(Material.GRASS)));
+            Spleef spleef = new Spleef();
+            spleef.setPlugin(Core.getSelf());
+            loadGame(spleef, new DynamicGameInfo("Spleef", "spleef", "fight", "1.0", new ArrayList<>(), new ArrayList<>(), 20, new ItemStack(Material.GRASS)));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -351,7 +283,9 @@ public class ServerGameManager extends Manager implements GameManager {
             gameVote.stop();
         }
         if (gameRunner != null) {
-            gameRunner.stop();
+            if (!gameRunner.isStopped()) {
+                gameRunner.stop();
+            }
             gameRunner = null;
         }
         Game game = getNextGame();
@@ -429,6 +363,7 @@ public class ServerGameManager extends Manager implements GameManager {
         ((DynamicGameInfo) info).setMapFolder(mapsFolder);
         ((DynamicGameInfo) info).setDataFolder(gameDataFolder);
 
+        game.setReplicator(new ServerGameReplicator(this));
         game.setInfo(info);
         try {
             game.setEnabled(true);
