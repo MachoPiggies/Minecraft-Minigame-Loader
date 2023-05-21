@@ -19,6 +19,30 @@ If you are looking for a loader that can cater to players on your network, pleas
 
 **I will not provide any support for 'incorrect' uses of this projects code**
 
+Usage
+-----------
+1. **Installing a game**
+You can do this either by loading the game from inside the API by extending the Game abstract class, or by putting an independent jar into the plugins 'games' directory.
+2. **Installing a map**
+You can do this by loading a game on the server, a data folder for the game will be created in the 'games' folder with a 'maps' folder inside, your map goes in there. The game will add a map.yml
+3. **Setting spawn locations**
+Edit the map.yml and add spawns in the format `locations.spawn.teamname.spawnname.x/y/z`, neutral team is teamless
+Example:
+```yml
+locations:
+  spawn:
+    neutral:
+      a:
+        x: 0.5
+        y: 64
+        z: 0.5
+      b:
+        x: 10.5
+        y: 64
+        z: -10.5
+  
+```
+
 Pre-requisites
 -----------
 1. [Maven](https://maven.apache.org/download.cgi?.) (Maven 3)
